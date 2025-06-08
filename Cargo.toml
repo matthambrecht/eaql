@@ -1,0 +1,12 @@
+[package]
+name = "eaql-db"
+version = "0.0.1"
+authors = ["Matthew Hambrecht"]
+edition = "2024"
+readme = "README.md"
+description = "An English-like SQL transpiler and database."
+repository = "https://github.com/matthambrecht/eaql-db"
+license = "GPL-3.0-or-later"
+categories = ["database", "eduactional"]
+
+[dependencies]
