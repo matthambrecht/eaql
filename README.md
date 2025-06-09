@@ -1,27 +1,58 @@
 <p align="center"><img src="docs/images/logos/logo-256-no-bg-white.png"/></p>
 
-<hr/>
+**EAQL (English Augmented Query Language)** is a simplified, English-like query language designed as a stepping stone to SQL. It's built for learners, educators, and simple projects where traditional SQL may feel intimidating or overly complex.
 
-EAQL stands for "English Augmented Query Language" and is meant to take an educational spin on SQL to make stepping up to SQL less challenging while also lowering the requirements for including a databse in more simple projects. Provided with EAQL is EAQL-DB which is a lightweight, in-memory database built for learning and prototyping. It uses EAQL, an English-like query language that can be transpiled to SQL or run directly. Ideal for teaching data concepts to beginner programmers.
+Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers the barrier to entry for understanding databases and query logic, making it perfect for prototyping, classrooms, or learning on your own.
 
-## Current Components
-### EAQL
-EAQL is a query language designed to make data querying more intuitive and human-readable. Inspired by SQL but structured around natural English patterns, EAQL lowers the barrier to data access for non-technical users while maintaining the full expressiveness of traditional SQL. Statements like `get all from users where age > 30` are transpiled directly into SQL (`SELECT * from users WHERE age > 5`), making it ideal for educational tools, internal analytics platforms, or simple projects.
+---
 
-Under the hood, EAQL features:
-* A custom parser and compiler written in Rust
-* Syntax error feedback designed for beginners
+## What’s Included
 
-#### Transpiler REPL
-The underlying query language, our initial implementation will provide a REPL (read-eval-print-loop) for quick test transpilation of EAQL to SQL.
+### EAQL (The Language)
 
-#### Training REPL
+EAQL makes data querying more human-readable. Inspired by SQL but based on natural English, it allows statements like:
+
+```eaql
+get all from users where age > 30
+````
+
+...which transpiles to:
+
+```sql
+SELECT * FROM users WHERE age > 30;
+```
+
+#### Features:
+
+* Custom parser and compiler written in **Rust**
+* Beginner-friendly error feedback
+* Transpiler REPL for testing EAQL → SQL
+
+#### Coming Soon:
+
+* **Training REPL** – Interactive learning tool for beginners
+
 <p align="center"><img src="docs/images/utils/under_construction.png"/></p>
 
-### EAQL-DB
+---
+
+### EAQL-DB (The Database)
+
+A lightweight, in-memory database that runs EAQL directly, no SQL backend required. Perfect for zero-setup experimentation and rapid prototyping.
+
 <p align="center"><img src="docs/images/utils/under_construction.png"/></p>
 
-## Why this?
-This project is meant to demonstrate end-to-end system design principles, language design, compiler architecture, and a deep database understaning. It balances accessibility and technical depth, making it both a useful tool and a showcase of engineering range. Not only do I want this to help others learn, but I also want to expand my own knowledge and deepen my understanding of compiler design principles and databases.
+---
 
-***Note:** This is for educational purposes only and should not be used in a production environment.*
+## Why EAQL?
+
+This project demonstrates:
+
+* End-to-end system design
+* Domain-specific language (DSL) creation
+* Compiler and transpiler architecture
+* Lightweight DB engine design
+
+It’s both a **learning tool for others** and a **personal deep dive** into compiler theory, operating systems, and database internals.
+
+> ⚠️ *Note: EAQL and EAQL-DB are for educational purposes only. Not intended for production use.*
