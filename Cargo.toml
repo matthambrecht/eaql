@@ -11,3 +11,4 @@ categories = ["database", "eduactional"]
 
 [dependencies]
 chrono = { version = "0.4", features = ["clock"] }
+lazy_static = "1.4"
