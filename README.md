@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/images/logos/logo-256-no-bg-white.png"/></p>
+<p align="center"><img src="docs/images/logos/logo-256-no-bg-grey.png"/></p>
 
 **EAQL (English Augmented Query Language)** is a simplified, English-like query language designed as a stepping stone to SQL. It's built for learners, educators, and simple projects where traditional SQL may feel intimidating or overly complex.
 
@@ -13,13 +13,13 @@ Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers 
 EAQL makes data querying more human-readable. Inspired by SQL but based on natural English, it allows statements like:
 
 ```eaql
-get all from users where age > 30
+get all data from drinks and food where price is 5 in ascending order
 ````
 
 ...which transpiles to:
 
 ```sql
-SELECT * FROM users WHERE age > 30;
+SELECT * FROM drinks, food WHERE price = 5 ORDER BY ASC;
 ```
 
 #### Features:
