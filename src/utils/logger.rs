@@ -1,5 +1,4 @@
 // EAQL Logger - Will need to clean this up later
-
 use chrono::Local;
 
 // TODO: Move these to config?
