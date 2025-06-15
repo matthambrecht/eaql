@@ -10,6 +10,6 @@ pub fn run() {
         io::stdin().read_line(&mut line).unwrap();
         line = line.trim().to_string();
         logger::debug(&format!("Received REPL String -> \"{}\"", line));
-        lexer::evaluate(&line);
+        lexer::scan_tokens(&line);
     }
 }

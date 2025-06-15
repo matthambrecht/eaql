@@ -7,6 +7,7 @@ fn main() {
     utils::help::display_logo();
 
     if args.len() <= 2 {
+        utils::help::display_help(None);
         panic!("Abort: Invalid number of params");
     }
 

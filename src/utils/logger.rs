@@ -47,8 +47,6 @@ pub fn warning(msg: &str) -> () {
     }
 }
 
-pub fn error(msg: &str) -> () {
-    if TEST_MODE && LOG_LEVEL <= ERROR.0 {
-        panic!("{}", send_msg("error", msg));
-    }
+pub fn error(msg: &str) -> ! {    
+    panic!("{}", send_msg("error", msg));
 }
