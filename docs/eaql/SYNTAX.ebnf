@@ -1,0 +1,92 @@
+# EAQL BNF
+## Notes for Understanding
+# [ ] = 0 or 1
+# { } = 0 or more
+
+
+## Main Content
+<MultiQuery> ::= <Query> { <Query> }
+<Query> ::= <QueryContent> <EoqToken>
+<QueryContent> ::= <DatabaseQuery>
+                    | <TableQuery>
+
+
+## Database Queries 
+### Mutation
+<DatabaseQuery> ::= <DatabaseCreateQuery> | <DatabaseDeleteQuery>
+<DatabaseDeleteQuery> ::= <DeleteKeyword> <Database> <Identifier>
+<DatabaseCreateQuery> ::= <CreateKeyword> <Database> <Identifier>
+
+## Table Queries
+<TableQuery> ::= <TableAccessorQuery>
+
+### Accessing
+<TableAccessorQuery> ::= <Get> ( <MultiIdentifier> | <WildcardKeyword> ) <From> <Identifier> [ <FilterClause> ] [ <PostProcessorClause> ]
+<FilterClause> ::= <FilterKeyword> <Condition>
+<PostProcessorClause> ::= <PostProcessorEntrance> <PostProcessorAction>
+<PostProcessorAction> ::= <SortAction> { <And> <SortAction> }
+<SortAction> ::= <Sort> <SortHelper> <SortType> [ <Order> ]
+
+## Utilities
+### Conditionals
+<MultiIdentifier> ::= <Identifier> { <Comma> <Identifier> } [ <And> <Identifier> ]
+<Condition> ::= <OrCondition>
+<OrCondition> ::= <AndCondition> { <OrCondition> <AndCondition> }
+<AndCondition> ::= <NotCondition> { <AndCondition> <NotCondition> }
+<NotCondition> ::= [ <Not> ] <PrimaryCondition>
+<PrimaryCondition> ::= <Expression>
+                      | <OpenParen> <Condition> <CloseParen>
+<Expression> ::= <Identifier> <ComparisonOperator> <Literal>
+
+## Tokens
+### Literal Tokens
+<Identifier> ::= # Database Object Identifier
+<Literal> ::= <StringLiteral> | <NumberLiteral>
+<StringLiteral> ::= <Quote> { <Character> } <Quote>
+<NumberLiteral> ::= <Number> { <Number> }
+
+### Single Char Tokens
+<Comma> ::= ","
+<EoqToken> ::= ";" | "." | "!"
+<OpenParen> ::= "("
+<CloseParen> ::= ")"
+<Quote> ::= "\""
+
+### One or Two Tokens
+<ComparisonOperator> ::= <Gte> | <Lte> | <Lt> | <Gt> | <Equal>
+<Gte> ::= <Gt> <Equal>
+<Lte> ::= <Lt> <Equal>
+<Equal> ::= "="
+<Lt> ::= "<"
+<Gt> ::= ">"
+
+### Keyword Tokens
+<DeleteKeyword> ::= "delete" | "remove"
+<CreateKeyword> ::= "create" | "make" | "add"
+<SortHelper> ::= "in" | "by"
+<SortType> ::= "ascending" | "descending"
+<WildcardKeyword> ::= "any" | "all"
+<FilterKeyword> ::= "where" | "whenever"
+<PostProcessorEntrance> ::= "then" | "afterwords" | "after"
+<Database> ::= "database"
+<Get> ::= "get" | "retrieve"
+<From> ::= "from"
+<And> ::= "and"
+<Order> ::= "order"
+<Sort> ::= "sort"
+<Not> ::= "not"
+
+### Helper Tokens
+<Letter> = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+       | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+       | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+       | "V" | "W" | "X" | "Y" | "Z" | "a" | "b"
+       | "c" | "d" | "e" | "f" | "g" | "h" | "i"
+       | "j" | "k" | "l" | "m" | "n" | "o" | "p"
+       | "q" | "r" | "s" | "t" | "u" | "v" | "w"
+       | "x" | "y" | "z"
+<Number> = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+<Symbol> = "[" | "]" | "{" | "}" | "(" | ")" | "<" | ">"
+            | "=" | "|" | "." | "," | ";" | "-" 
+            | "+" | "*" | "?" | "\n" | "\t" | "\r" | "\f" | "\b"
+<Character> = <Letter> | <Digit> | <Symbol> | "_" | " "
