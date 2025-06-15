@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TokenType {
     // Single Char Tokens
     OpenParen, CloseParen, EoqToken,
@@ -18,7 +18,7 @@ pub enum TokenType {
     Database, Get, From, And, Order, Sort, Not
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Token {
     token_type: TokenType,
     literal: String,
@@ -56,5 +56,5 @@ pub const SINGLE_START_TOKENS: &[char] = &[
 
 
 pub const SINGLE_DOUBLE_START_TOKENS: &[char] = &[
-    '<', '>'
+    '<', '>', '='
 ];
