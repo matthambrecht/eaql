@@ -1,6 +1,7 @@
-use std::fmt;
+use std::{collections::HashMap, fmt};
+use lazy_static::lazy_static;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     // Single Char Tokens
     OpenParen, CloseParen, EoqToken,
@@ -15,14 +16,17 @@ pub enum TokenType {
     // Keywords
     DeleteKeyword, CreateKeyword, SortHelper, SortType,
     WildcardKeyword, FilterKeyword, PostProcessorEntrance,
-    Database, Get, From, And, Order, Sort, Not
+    Database, Get, From, And, Order, Sort, Not,
+
+    // Defaults
+    UnknownToken, WhitespaceToken
 }
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
-    token_type: TokenType,
-    literal: String,
-    lexeme: String,
+    pub token_type: TokenType,
+    pub literal: String,
+    pub lexeme: String,
 }
 
 impl Token {
@@ -58,3 +62,62 @@ pub const SINGLE_START_TOKENS: &[char] = &[
 pub const SINGLE_DOUBLE_START_TOKENS: &[char] = &[
     '<', '>', '='
 ];
+
+
+lazy_static! {
+    pub static ref IDENTIFER_STOPS: Vec<char> = {
+        let mut rv: Vec<char> = vec![];
+
+        rv.extend_from_slice(SINGLE_DOUBLE_START_TOKENS);
+        rv.extend_from_slice(SINGLE_START_TOKENS);
+        rv.extend_from_slice(&['\"', ' ']);
+
+        return rv;
+    };
+
+    pub static ref SYSTEM_KEYWORDS: HashMap<&'static str, TokenType> = {
+        return HashMap::from([
+            ("delete", TokenType::DeleteKeyword),
+            ("remove", TokenType::DeleteKeyword),
+
+            ("create", TokenType::CreateKeyword),
+            ("make", TokenType::CreateKeyword),
+            ("add", TokenType::CreateKeyword),
+
+            ("in", TokenType::SortHelper),
+            ("by", TokenType::SortHelper),
+
+            ("ascending", TokenType::SortType),
+            ("descending", TokenType::SortType),
+
+            ("any", TokenType::WildcardKeyword),
+            ("all", TokenType::WildcardKeyword),
+            ("everything", TokenType::WildcardKeyword),
+
+            ("where", TokenType::FilterKeyword),
+            ("whenever", TokenType::FilterKeyword),
+
+            ("then", TokenType::PostProcessorEntrance),
+            ("afterwords", TokenType::PostProcessorEntrance),
+            ("after", TokenType::PostProcessorEntrance),
+
+            ("database", TokenType::Database),
+
+            ("find", TokenType::Get),
+            ("retrieve", TokenType::Get),
+            ("get", TokenType::Get),
+
+            ("from", TokenType::From),
+
+            ("and", TokenType::And),
+
+            ("order", TokenType::Order),
+
+            ("sort", TokenType::Sort),
+
+            ("not", TokenType::Not),
+
+            ("is", TokenType::Equal),
+        ]);
+    };
+}

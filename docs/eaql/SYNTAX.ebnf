@@ -56,7 +56,7 @@
 <ComparisonOperator> ::= <Gte> | <Lte> | <Lt> | <Gt> | <Equal>
 <Gte> ::= <Gt> <Equal>
 <Lte> ::= <Lt> <Equal>
-<Equal> ::= "="
+<Equal> ::= "=" | "is"
 <Lt> ::= "<"
 <Gt> ::= ">"
 
@@ -65,11 +65,11 @@
 <CreateKeyword> ::= "create" | "make" | "add"
 <SortHelper> ::= "in" | "by"
 <SortType> ::= "ascending" | "descending"
-<WildcardKeyword> ::= "any" | "all"
+<WildcardKeyword> ::= "any" | "all" | "everything"
 <FilterKeyword> ::= "where" | "whenever"
 <PostProcessorEntrance> ::= "then" | "afterwords" | "after"
 <Database> ::= "database"
-<Get> ::= "get" | "retrieve"
+<Get> ::= "get" | "retrieve" | "find"
 <From> ::= "from"
 <And> ::= "and"
 <Order> ::= "order"

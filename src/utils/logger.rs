@@ -35,13 +35,13 @@ pub fn debug(msg: &str) -> () {
     }
 }
 
-pub fn info(msg: &str) -> () {
+pub fn _info(msg: &str) -> () {
     if TEST_MODE && LOG_LEVEL <= INFO.0 {
         println!("{}", send_msg("info", msg));
     }
 }
 
-pub fn warning(msg: &str) -> () {
+pub fn _warning(msg: &str) -> () {
     if TEST_MODE && LOG_LEVEL <= WARNING.0 {
         eprintln!("{}", send_msg("warning", msg));
     }
