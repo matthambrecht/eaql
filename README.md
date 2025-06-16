@@ -1,5 +1,7 @@
 <p align="center"><img src="docs/images/logos/logo-256-no-bg-grey.png"/></p>
 
+[![Eaql-DB Unit Tests](https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml/badge.svg)](https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml)
+
 **EAQL (English Augmented Query Language)** is a simplified, English-like query language designed as a stepping stone to SQL. It's built for learners, educators, and simple projects where traditional SQL may feel intimidating or overly complex.
 
 Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers the barrier to entry for understanding databases and query logic, making it perfect for prototyping, classrooms, or learning on your own.
