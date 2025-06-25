@@ -14,14 +14,14 @@ Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers 
 
 EAQL makes data querying more human-readable. Inspired by SQL but based on natural English, it allows statements like:
 
-```eaql
-get all data from drinks and food where price is 5 in ascending order
-````
+```
+Get everything from drinks wherever the price is 5 and the category is "coffee" then sort it in ascending order.
+```
 
 ...which transpiles to:
 
 ```sql
-SELECT * FROM drinks, food WHERE price = 5 ORDER BY ASC;
+SELECT * FROM drinks WHERE price = 5 and category = "coffee" ORDER BY ASC;
 ```
 
 #### Features:

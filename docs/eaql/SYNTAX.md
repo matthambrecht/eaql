@@ -8,7 +8,7 @@ See [Syntax BNF](./SYNTAX.ebnf)
 
 ## Tokenization
 Sample Query:
-- `get everything from drinks where price is 5 and category is "coffee" then sort in ascending order.`
+- `Get everything from drinks whenever the price is 5 and the category is "coffee" then sort it in ascending order.`
 
 Query Tokenized: 
 ```json
