@@ -1,5 +1,4 @@
 use std::fmt;
-use crate::utils::logger;
 use crate::eaql::tokens::{
     Token,
     TokenType,
@@ -10,8 +9,8 @@ use crate::eaql::tokens::{
 };
 
 #[derive(Debug)]
-struct Lexer {
-    tokens: Vec<Token>
+pub struct Lexer {
+    pub tokens: Vec<Token>
 }
 
 impl Lexer {
@@ -104,7 +103,7 @@ impl Lexer {
         _query: &String,
         c: char,
         current: &mut usize
-    ) -> Token {
+    ) -> Result<Token, String> {
         let token_type: TokenType = match c {
             n if [';', '!', '.'].contains(&n) => TokenType::EoqToken,
             ')' => TokenType::CloseParen,
@@ -115,11 +114,11 @@ impl Lexer {
 
         *current += 1;
 
-        return Token::new(
+        return Ok(Token::new(
             token_type,
             &"".to_string(),
             &c.to_string()
-        );
+        ));
     }
 
     /* Handle slightly complex tokens like '>' which might be 
@@ -128,7 +127,7 @@ impl Lexer {
         query: &String,
         c: char,
         current: &mut usize
-    ) -> Token {
+    ) -> Result<Token, String> {
         let slice_start = *current;
         let peeked_token: Option<char> = Lexer::peek_one(query, current);
         let token_type: TokenType = 
@@ -157,11 +156,11 @@ impl Lexer {
 
         let slice_end: usize = *current;
 
-        return Token::new(
+        return Ok(Token::new(
             token_type,
             &"".to_string(),
             &query[slice_start..slice_end].to_string()
-        );
+        ));
     }
 
     fn handle_default(
@@ -169,7 +168,7 @@ impl Lexer {
         c: char,
         current: &mut usize,
         start: &mut usize
-    ) -> Token {
+    ) -> Result<Token, String> {
         let mut token_type: TokenType;
         let literal: String;
         let slice_start: usize = *current;
@@ -207,11 +206,11 @@ impl Lexer {
 
             if token_type == TokenType::UnknownToken {
                 *current += 1; // We weren't able to increment in the loop
-                return Token::new(
+                return Ok(Token::new(
                     token_type,
                     &"".to_string(),
                     &query[slice_start..*current].to_string()
-                );
+                ));
             }
             
             literal = query[*start + 1..*current].to_string();
@@ -237,18 +236,18 @@ impl Lexer {
         *current += 1;
         let slice_end: usize = *current;
 
-        return Token::new(
+        return Ok(Token::new(
             token_type,
             &literal,
             &query[slice_start..slice_end].to_string()
-        );
+        ));
     }
 
     fn next_token(
         query: &String,
         current: &mut usize,
         start: &mut usize,
-    ) -> Token {
+    ) -> Result<Token, String> {
         let c: char = query.chars().nth(*current).unwrap();
 
         if SINGLE_START_TOKENS.contains(&c) {
@@ -270,25 +269,33 @@ impl Lexer {
         }
     }
 
-    pub fn new(query: &String) -> Lexer {
+    pub fn new(query: &String) -> Result<Lexer, String> {
         let mut toks: Vec<Token> = vec![];
+        let mut warnings: Vec<String> = vec![];
         let mut start: usize = 0;
         let mut current: usize = 0;
 
         while current < query.len() {
-            toks.push(Lexer::next_token(
+            let token: Result<Token, String> = Lexer::next_token(
                 query,
                 &mut current,
-                &mut start));
+                &mut start);
+            
+            if token.is_err() {
+                warnings.push(token.err().unwrap());
+            } else {
+                toks.push(token.unwrap());
+            }
+
             start = current;
         }
 
-        Lexer {
+        Ok(Lexer {
             tokens: toks
                 .into_iter()
                 .filter(|x: &Token| x.token_type != TokenType::WhitespaceToken)
                 .collect()
-        }
+        })
     }
 }
 
@@ -301,10 +308,8 @@ impl fmt::Display for Lexer {
     }
 }
 
-pub fn scan_tokens(query: &String) {
-    logger::debug(&format!("Raw Input: '{}'", query));
-    let lexer: Lexer = Lexer::new(query);
-    println!("{}", lexer);
+pub fn scan_tokens(query: &String) -> Result<Lexer, String>{
+    Lexer::new(query)
 }
 
 
@@ -317,7 +322,10 @@ mod tests {
     #[test]
     fn test_basic_single_tokens() {
         let input: String = "()!.;,".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::OpenParen,
@@ -351,13 +359,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_single_double_tokens() {
         let input: String = "<><=>==".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+        
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::Lt,
@@ -386,13 +397,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_string_literal_base() {
         let input: String = "\"Hi1234\"".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::StringLiteral,
@@ -401,13 +415,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_string_literal_error_1() {
         let input: String = "\"Hi1234".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::UnknownToken,
@@ -416,13 +433,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_string_literal_error_2() {
         let input: String = "\"".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+        
+        assert!(!test_lexer.is_err());
+        
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::UnknownToken,
@@ -431,13 +451,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_string_literal_edge() {
         let input: String = "\"\"".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::StringLiteral,
@@ -446,13 +469,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_number_literal_base() {
         let input: String = "1234".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::NumberLiteral,
@@ -461,13 +487,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_number_literal_decimal() {
         let input: String = "12.34".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+        
+        assert!(!test_lexer.is_err());
+        
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::NumberLiteral,
@@ -476,13 +505,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_number_literal_negative_decimal() {
         let input: String = "-12.34".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::NumberLiteral,
@@ -491,13 +523,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_keyword_literal_1() {
         let input: String = "get all from place.".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+        
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::Get,
@@ -526,13 +561,16 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 
     #[test]
     fn test_basic_keyword_literal_2() {
         let input: String = "retrieve everything from place whenever name is \"Coffee\" and cost >= 2.43!".to_string();
-        let test_lexer: Lexer = Lexer::new(&input);
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+        
+        assert!(!test_lexer.is_err());
+
         let expected: Vec<Token> = vec![
             Token::new(
                 TokenType::Get,
@@ -601,6 +639,6 @@ mod tests {
             ),
         ];
 
-        assert_eq!(expected, test_lexer.tokens);
+        assert_eq!(expected, test_lexer.unwrap().tokens);
     }
 }

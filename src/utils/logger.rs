@@ -41,7 +41,7 @@ pub fn _info(msg: &str) -> () {
     }
 }
 
-pub fn _warning(msg: &str) -> () {
+pub fn warning(msg: &str) -> () {
     if TEST_MODE && LOG_LEVEL <= WARNING.0 {
         eprintln!("{}", send_msg("warning", msg));
     }
