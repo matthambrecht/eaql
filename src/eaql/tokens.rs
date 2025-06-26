@@ -19,7 +19,7 @@ pub enum TokenType {
     Database, Get, From, And, Order, Sort, Not,
 
     // Defaults
-    UnknownToken, WhitespaceToken
+    UnknownToken, WhitespaceToken, NullToken
 }
 
 #[derive(Debug, PartialEq)]
