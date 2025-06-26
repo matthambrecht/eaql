@@ -19,14 +19,13 @@ impl Query {
         validate_length(
             &tokens,
             &idx,
-            "Begining of Query",
             true)?;
         
         if tokens[*idx].token_type == TokenType::Get {
             *idx += 1;
 
             let get_node: GetNode = GetNode::parse(
-                &tokens, idx, "Get Statement Start", depth + 1
+                &tokens, idx, depth + 1
             )?;
             return Ok(Query {
                 _get: Some(get_node), 

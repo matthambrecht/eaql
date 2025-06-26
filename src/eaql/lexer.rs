@@ -2,10 +2,10 @@ use std::fmt;
 use crate::eaql::tokens::{
     Token,
     TokenType,
-    SINGLE_START_TOKENS,
-    SINGLE_DOUBLE_START_TOKENS,
     IDENTIFER_STOPS,
-    SYSTEM_KEYWORDS,
+    SINGLE_DOUBLE_START_TOKENS,
+    SINGLE_START_TOKENS,
+    SYSTEM_KEYWORDS
 };
 
 #[derive(Debug)]

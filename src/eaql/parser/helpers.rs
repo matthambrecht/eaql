@@ -1,17 +1,18 @@
-use crate::eaql::tokens::{Token};
+use crate::eaql::tokens::{Token, TokenType};
 
 const TAB_SIZE: u16 = 2;
 
 pub fn validate_length(
     tokens: &Vec<Token>,
     idx: &usize,
-    prior: &str,
     required: bool
 ) -> Result<(), String>{
     if *idx >= tokens.len() && required {
-        return Err(format!(
-            "Query was missing expected data after \"{prior}\"!"
-        ));
+        return Err(
+                format!("Query valid until after \"{}\"!",
+                tokens[..*idx].into_iter().map(
+                |x| x.lexeme.as_str()
+                ).collect::<Vec<&str>>().join(" ")).to_string());
     }
 
     Ok(())
@@ -35,4 +36,16 @@ pub fn valid_until_warning(
         tokens[..*idx].into_iter().map(
         |x| x.lexeme.as_str()
         ).collect::<Vec<&str>>().join(" ")).to_string()
+}
+
+// Look a token ahead
+pub fn peek_one(
+    tokens: &Vec<Token>,
+    idx: &usize
+) -> TokenType {
+    if *idx + 1 >= tokens.len() {
+        TokenType::NullToken
+    } else {
+        tokens[*idx + 1].token_type.clone()
+    }
 }
