@@ -1,15 +1,14 @@
 <p align="center"><img src="docs/images/logos/logo-256-no-bg-grey.png"/></p>
 
-[![Eaql-DB Unit Tests](https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml/badge.svg)](https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml)
+<p align="center"><img href="https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml" src="https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml/badge.svg"/></p>
 
 **EAQL (English Augmented Query Language)** is a simplified, English-like query language designed as a stepping stone to SQL. It's built for learners, educators, and simple projects where traditional SQL may feel intimidating or overly complex.
 
-Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers the barrier to entry for understanding databases and query logic, making it perfect for prototyping, classrooms, or learning on your own.
+~~Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers the barrier to entry for understanding databases and query logic, making it perfect for prototyping, classrooms, or learning on your own.~~
 
 ---
 
 ## What’s Included
-
 ### EAQL (The Language)
 
 EAQL makes data querying more human-readable. Inspired by SQL but based on natural English, it allows statements like:
@@ -38,9 +37,9 @@ SELECT * FROM drinks WHERE price = 5 and category = "coffee" ORDER BY ASC;
 
 ---
 
-### EAQL-DB (The Database)
+### ~~EAQL-DB (The Database)~~
 
-A lightweight, in-memory database that runs EAQL directly, no SQL backend required. Perfect for zero-setup experimentation and rapid prototyping.
+~~A lightweight, in-memory database that runs EAQL directly, no SQL backend required. Perfect for zero-setup experimentation and rapid prototyping.~~
 
 <p align="center"><img src="docs/images/utils/under_construction.png"/></p>
 
