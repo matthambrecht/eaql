@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fmt};
 use lazy_static::lazy_static;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum TokenType {
     // Single Char Tokens
     OpenParen, CloseParen, EoqToken,
@@ -22,7 +22,7 @@ pub enum TokenType {
     UnknownToken, WhitespaceToken, NullToken
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String,

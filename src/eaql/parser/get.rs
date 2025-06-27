@@ -6,12 +6,14 @@ use crate::eaql::parser::helpers::{
     validate_length,
     peek_one
 };
+use crate::eaql::parser::conditional::{
+    ConditionNode
+};
 
 #[derive(Debug)]
 pub struct GetNode {
     _table: TableNode,
     _columns: ColumnNode,
-    _where: Option<WhereNode>,
     _filter: Option<FilterNode>,
     _postprocessor: Option<PostProcessorNode>,
 
@@ -33,10 +35,13 @@ pub struct ColumnNode {
     _depth: u16 
 }
 
-#[derive(Debug)]
-pub struct WhereNode {}
-#[derive(Debug)]
-pub struct FilterNode {}
+#[derive(Debug, PartialEq)]
+pub struct FilterNode {
+    _condition: ConditionNode,
+
+    _depth: u16
+}
+
 #[derive(Debug)]
 pub struct PostProcessorNode {}
 
@@ -76,11 +81,22 @@ impl GetNode {
                 },
         };
 
+        let _filter: Option<FilterNode> = match FilterNode::parse(
+            tokens,
+            idx,
+            depth + 1) {
+                Ok(filter) => {
+                   filter 
+                },
+                Err(err) => {
+                    return Err(err);
+                },
+            };
+
         Ok(GetNode {
             _table: _table,
             _columns: _columns,
-            _where: Some(WhereNode {}),
-            _filter: Some(FilterNode {}),
+            _filter: _filter,
             _postprocessor: Some(PostProcessorNode {}),
             _depth: depth
         })
@@ -96,7 +112,10 @@ impl TableNode {
         peek_one(tokens, idx) == TokenType::Identifier {
             *idx += 1;
         } else {
-            return Err("From keyword required for table selection.".to_string());
+            return Err(format!(
+                "From-like keyword required for table selection, got \"{}\" instead",
+                tokens[*idx].lexeme
+            ));
         }
 
         return Ok(
@@ -172,6 +191,42 @@ make sure they're in a valid list notation.".to_string()
     }
 }
 
+impl FilterNode {
+    pub fn parse(
+        tokens: &Vec<Token>,
+        idx: &mut usize,
+        depth: u16) -> Result<Option<FilterNode>, String> {
+        
+        
+        if tokens[*idx].token_type == TokenType::FilterKeyword {
+            *idx += 1;
+
+            let condition_node: ConditionNode = match ConditionNode::parse(
+                tokens,
+                idx,
+                depth) {
+                    Ok(condition) => {
+                        condition
+                    },
+                    Err(err) => {
+                        return Err(err);
+                    }
+            };
+
+            return Ok(
+                Some(FilterNode {
+                    _condition: condition_node,
+
+                    _depth: depth
+            }));
+        }
+
+        return Ok(None);
+    }
+}
+
+
+// Display Functions
 impl fmt::Display for GetNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
@@ -197,6 +252,7 @@ impl fmt::Display for TableNode {
         )
     }
 }
+
 impl fmt::Display for ColumnNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(

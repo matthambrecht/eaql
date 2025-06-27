@@ -55,3 +55,15 @@ pub fn parse(tokens: &Vec<Token>) -> Result<Query, String> {
 
     Query::parse(tokens, &mut idx, 0)
 }
+
+/* Template for Nodes 
+impl TemplateNode {
+    pub fn parse(
+        tokens: &Vec<Token>,
+        idx: &mut usize,
+        depth: u16) -> Result<TemplateNode, String> {
+        
+        return Err("ERROR PLACEHOLDER".to_string());
+    }
+}
+*/
