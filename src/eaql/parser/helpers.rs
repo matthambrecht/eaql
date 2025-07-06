@@ -9,7 +9,7 @@ pub fn validate_length(
 ) -> Result<(), String>{
     if *idx >= tokens.len() && required {
         return Err(
-                format!("Query valid until after \"{}\"!",
+                format!("Query valid until after \"{}\"! Possible unfinished query?",
                 tokens[..*idx].into_iter().map(
                 |x| x.lexeme.as_str()
                 ).collect::<Vec<&str>>().join(" ")).to_string());
