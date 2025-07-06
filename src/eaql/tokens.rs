@@ -16,7 +16,7 @@ pub enum TokenType {
     // Keywords
     DeleteKeyword, CreateKeyword, SortHelper, SortType,
     WildcardKeyword, FilterKeyword, PostProcessorEntrance,
-    Database, Get, From, And, Order, Sort, Not,
+    Database, Get, From, And, Or, Order, Sort, Not,
 
     // Defaults
     UnknownToken, WhitespaceToken, NullToken
@@ -118,6 +118,8 @@ lazy_static! {
             ("not", TokenType::Not),
 
             ("is", TokenType::Equal),
+
+            ("or", TokenType::Or)
         ]);
     };
 }

@@ -2,7 +2,6 @@ use std::fmt;
 use crate::eaql::tokens::{Token, TokenType};
 use crate::eaql::parser::helpers::{
     get_tab,
-    valid_until_warning, 
     validate_length,
     peek_one
 };
@@ -43,15 +42,15 @@ pub struct FilterNode {
 }
 
 #[derive(Debug)]
-pub struct PostProcessorNode {}
+pub struct PostProcessorNode {
+    _depth: u16
+}
 
 impl GetNode {
    pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
         depth: u16) -> Result<GetNode, String>{
-        let start_idx: usize = *idx;
-
         validate_length(
             tokens,
             idx,
@@ -97,7 +96,9 @@ impl GetNode {
             _table: _table,
             _columns: _columns,
             _filter: _filter,
-            _postprocessor: Some(PostProcessorNode {}),
+            _postprocessor: Some(PostProcessorNode {
+                _depth: depth + 1
+            }),
             _depth: depth
         })
     }
@@ -118,9 +119,11 @@ impl TableNode {
             ));
         }
 
+        *idx += 1;
+
         return Ok(
             TableNode {
-                table_name: tokens[*idx].literal.clone(),
+                table_name: tokens[*idx - 1].literal.clone(),
 
                 _depth: depth
         });
@@ -197,14 +200,13 @@ impl FilterNode {
         idx: &mut usize,
         depth: u16) -> Result<Option<FilterNode>, String> {
         
-        
         if tokens[*idx].token_type == TokenType::FilterKeyword {
             *idx += 1;
 
             let condition_node: ConditionNode = match ConditionNode::parse(
                 tokens,
                 idx,
-                depth) {
+                depth + 1) {
                     Ok(condition) => {
                         condition
                     },
@@ -231,10 +233,49 @@ impl fmt::Display for GetNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-"\n{}(GetNode){}{}",
+"\n{}(GetNode){}{}{}{}",
             get_tab(self._depth),
             self._columns,
-            self._table
+            self._table,
+            self._filter
+                .as_ref()
+                .map(|v| v as &dyn fmt::Display)
+                .unwrap_or(&format!("
+{}(FilterNode)
+{}N/A",
+                get_tab(self._depth + 1),
+                get_tab(self._depth + 2))),
+            self._postprocessor
+                .as_ref()
+                .map(|v| v as &dyn fmt::Display)
+                .unwrap_or(&format!("
+{}(PostProcessorNode)
+{}N/A",
+                get_tab(self._depth + 1),
+                get_tab(self._depth + 2)))
+        )
+    }
+}
+
+impl fmt::Display for PostProcessorNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+"\n{}(PostProcessorNode)
+{}N/A",
+            get_tab(self._depth),
+            get_tab(self._depth + 1),
+          )
+    }
+}
+
+impl fmt::Display for FilterNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+"\n{}(FilterNode){}",
+            get_tab(self._depth),
+            self._condition
         )
     }
 }
@@ -244,8 +285,7 @@ impl fmt::Display for TableNode {
         write!(
             f,
 "\n{}(TableNode)
-{}table_name: {:#?}
-",
+{}table_name: {:?}",
             get_tab(self._depth),
             get_tab(self._depth + 1),
             self.table_name,
@@ -258,14 +298,13 @@ impl fmt::Display for ColumnNode {
         write!(
             f,
 "\n{}(ColumnNode)
-{}is_wildcard: {:#?}
-{}column_names: {:#?}
-",
+{}is_wildcard: {:?}
+{}column_names: {:?}",
             get_tab(self._depth),
             get_tab(self._depth + 1),
             self.is_wildcard,
             get_tab(self._depth + 1),
-            self.column_names
+            self.column_names,
         )
     }
 }

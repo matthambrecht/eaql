@@ -54,6 +54,6 @@ This project demonstrates:
 * Compiler and transpiler architecture
 * Lightweight DB engine design
 
-It’s both a **learning tool for others** and a **personal deep dive** into compiler theory, operating systems, and database internals.
+It’s both a **learning tool for others** and a **personal deep dive** into compiler theory, operating systems, and database internals. With that being said, a lot of this is "learn as we go" so not every initial design choice will likely be optimal or even correct. I hope to continue iterating on this to keep learning and hopefully help others interested in creating a computer language, or database as a lot of my thoughts and realizations will be transferrable (i.e. lessons learned from [conditional-parsing](docs/eaql/PARSER.md/#conditional-parsing) is transferrable to calculator design and operational heirarchies).
 
 > ⚠️ *Note: EAQL and EAQL-DB are for educational purposes only. Not intended for production use.*
