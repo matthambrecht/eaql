@@ -1,0 +1,124 @@
+Rules:
+- Start with an "OR" node at the beginning always
+- When you get a literal token evaluate it to its base expression and that evaluated expression will go on the left side of an "AND" node. Where that "AND" node goes is your next location as determined by future rules.
+- If you run across an "and" keyword, go to the next available location and add an "AND" node:
+
+```
+       (AND)                      (AND)
+    /        \           ->    /        \
+  (EXPR)   Unvisited        (EXPR)     (AND)
+```
+
+- If you run across an "or" keyword, close out until an ancestor "OR" node, and add an "OR" node as the child.
+
+```
+            (OR)                        (OR)
+          /                          /         \
+        (AND)                      (AND)        (OR)
+      /       \           ->        / \        /
+   (AND)    Unvisited           (AND)  True   Unvisited
+  /    \                        /   \
+(EXPR) Unvisited             (EXPR)  True
+```
+
+- If you run across opening parentheses add an "OR" node
+
+```
+          (OR)                       (OR)
+        /     \                     /    \
+    (AND)     Unvisited   ->     (AND)   Unvisited
+    /   \                        /    \
+(EXPR)  Unvisited             (EXPR)  (OR)
+                                    /      \
+                              Unvisited   Unvisited
+```
+
+- If you run across a closing parentheses, close out ancestor "OR" node. (If next keyword is "and", add an "AND node to your LS and set its LS to your LS and start from that child's RS, same thing happens with OR you just add an "OR" node).
+
+```
+            (OR)                              (OR)    
+           /    \                            /   \
+        (AND)   Unvisited                 (AND)   Unvisited
+       /    \                            /    \
+    (EXPR)  (OR)              ->      (EXPR)  (OR)
+          /      \                            /   \
+      (AND)   Unvisited                    (AND)    False
+    /      \                              /     \
+(EXPR)    Unvisited                    (EXPR)    True
+```
+
+**Original:**
+a and b or (a and (c and f or d)) and g or d
+**Original Expected:** (a and b) or ((a and ((c and f) or d)) and g)
+**Parsed Tree:**
+```
+                                                        (OR)
+                                                      /       \
+                                                    /           \
+                                                  /               \
+                                                /                   \
+                                            (AND)                    (AND)
+                                            /  \                     /    \
+                                          /      \                 /        \
+                                        a       (AND)          (OR)        (OR)
+                                                  /  \         /    \     /      \
+                                                 b    T     (AND)    T  (AND)  (OR)
+                                                            /   \       /   \   /   \
+                                                            a  (AND)   g     T (AND) F
+                                                              /      \        /    \
+                                                            (OR)      T     d       T
+                                                          /     \
+                                                        /         \
+                                                      /             \
+                                                    /                 \
+                                                  (AND)               (OR)
+                                                  /    \              /   \
+                                                 c    (AND)        (AND)   F
+                                                     /     \      /     \
+                                                     f     T      d     T
+```               
+
+(a and b) or (((a and (((c and f) or d)))) and (g or d))
+
+**Original:** a and b or (b or (c or f)) and d or f or (f and d) or c
+
+
+**Expected:** (a and b) or (((b or (c or f)) and d) or f) or (f and d) or c
+```
+                                                                             (OR)
+                                                                            /   \
+                                                                      /          \
+                                                                /                  \
+                                                          /                          \
+                                                   /                                   \
+                                            /                                           (OR)
+                                       /                                             /       \
+                                /                                               /               \
+                          /                                                 /                       \
+                      /                                                 /                               \
+                  (AND)                                              (AND)                              (OR)
+                    /\                                                /  \                              /    \
+                  /    \                                            /      \                         /          \
+                /       \                                         /         \                     /                \
+              a          (AND)                                   (OR)     (AND)                (AND)              (OR)
+                        /     \                                /     \     / \                 /  \              /    \
+                       b       T                            (AND)    (OR) d   T               f    T          (OR)     F
+                                                              /\      /\                                     /   \
+                                                             / \      / \                                 (OR)    (AND)
+                                                            /   \    /   \                                 /  \   /    \
+                                                           b     T  (OR)  F                             (AND)  F  c    T
+                                                                   /   \                               /    \      
+                                                                (AND)   (OR)                          f     (AND)
+                                                               /  \    /   \                                /   \
+                                                              c    T (AND)  F                             d      T
+                                                                     /   \
+                                                                   f      T
+
+                                                                            
+                                                                               
+                                                                              
+```
+(b AND a) OR (((b OR (c OR f)) AND d) OR (f OR ((f AND d) OR c)))
+
+
+
