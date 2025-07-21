@@ -43,50 +43,284 @@ pub struct BoolNode {
     _depth: u16
 }
 
-impl ConditionNode {
-    pub fn recurse_build(
-        parent_op: String,
-        tokens: &Vec<Token>,
-        idx: &mut usize,
-        depth: u16
-    ) -> Result<ConditionChild, String> {
-        Err("None".to_string())
+
+fn handle_open_paren(
+    tokens: &Vec<Token>,
+    idx: &mut usize,
+    depth: u16,
+    finished: &mut bool,
+    closing_paren: &mut bool,
+    closing_or: &mut bool,
+) -> Result<ConditionChild, String> {
+    let ret: ConditionChild = ConditionChild::Op(Box::new(OperandNode {
+            _type: "OR".to_string(),
+            _depth: depth,
+            _ls: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
+                Ok(node) => node,
+                Err(msg) => return Err(msg)
+            },
+            _rs: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
+                Ok(node) => node,
+                Err(msg) => return Err(msg)
+            }
+    }));
+
+    match tokens[*idx].token_type {
+        TokenType::And => {
+            *idx += 1;
+            *closing_paren = false;
+
+            return Ok(ConditionChild::Op(Box::new(
+                OperandNode {
+                    _type: "AND".to_string(),
+                    _ls: ret,
+                    _rs: match recurse_down(tokens, idx, depth + 1, "AND".to_string(), finished, closing_paren, closing_or) {
+                        Ok(node) => node,
+                        Err(msg) => return Err(msg)
+                    },
+
+                    _depth: depth
+                }
+            )));
+        },
+        TokenType::Or => {
+            *idx += 1;
+            *closing_paren = false;
+
+            return Ok(ConditionChild::Op(Box::new(
+                OperandNode {
+                    _type: "OR".to_string(),
+                    _ls: ret,
+                    _rs: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
+                        Ok(node) => node,
+                        Err(msg) => return Err(msg)
+                    },
+
+                    _depth: depth
+                }
+            )));
+        },
+        TokenType::CloseParen => {
+            *idx += 1;
+            
+            return Ok(ret);
+        },
+        TokenType::EoqToken => {
+            *closing_paren = false;
+            *finished = true;
+
+            return Ok(ret);
+        },
+        _ => return Err(format!("Something went wrong parsing a nested conditional, expected a closing parentheses, 'and' or 'or', but got '{}' instead.", tokens[*idx].lexeme))
+    }
+}
+
+fn handle_and(
+    tokens: &Vec<Token>,
+    idx: &mut usize,
+    depth: u16,
+    finished: &mut bool,
+    closing_paren: &mut bool,
+    closing_or: &mut bool,
+) -> Result<ConditionChild, String> {
+    Ok(ConditionChild::Op(Box::new(OperandNode {
+            _type: "AND".to_string(),
+            _depth: depth,
+            _ls: match recurse_down(tokens, idx, depth + 1, "AND".to_string(), finished, closing_paren, closing_or) {
+                Ok(node) => node,
+                Err(msg) => return Err(msg)
+            },
+            _rs: match recurse_down(tokens, idx, depth + 1, "AND".to_string(), finished, closing_paren, closing_or) {
+                Ok(node) => node,
+                Err(msg) => return Err(msg)
+            }
+    })))
+}
+
+fn handle_literal(
+    tokens: &Vec<Token>,
+    idx: &mut usize,
+    depth: u16,
+    finished: &mut bool,
+    closing_paren: &mut bool,
+    closing_or: &mut bool,
+) -> Result<ConditionChild, String> {
+    let ls: ConditionChild = ConditionChild::Expr(
+        Box::new(match ExpressionNode::parse(tokens, idx, depth + 1) {
+            Ok(node) => node,
+            Err(msg) => return Err(msg)
+        })
+    );
+    let rs: ConditionChild = match recurse_down(tokens, idx, depth + 1, "AND".to_string(), finished, closing_paren, closing_or) {
+        Ok(node) => node,
+        Err(msg) => return Err(msg)
+    };
+
+    return Ok(
+        ConditionChild::Op(Box::new(OperandNode {
+            _type: "AND".to_string(),
+            _depth: depth,
+            _ls: ls,
+            _rs: rs
+        }))
+    );
+}
+
+fn handle_close(
+    parent_node: &String,
+    depth: u16
+) -> ConditionChild {
+    // AND default to true, OR defaults to false
+    if *parent_node == "AND" {
+        ConditionChild::Bool(Box::new(
+            BoolNode { _value: true, _depth: depth }
+        ))
+    } else {
+        ConditionChild::Bool(Box::new(
+            BoolNode { _value: false, _depth: depth }
+        ))
+    }
+}
+
+fn handle_or(
+    closing_or: &mut bool,
+    parent_node: &String,
+    depth: u16,
+) -> ConditionChild {
+    *closing_or = true;
+    handle_close(&parent_node, depth)
+}
+
+fn handle_close_paren(
+    closing_paren: &mut bool,
+    parent_node: &String,
+    depth: u16,
+) -> ConditionChild {
+    *closing_paren = true;
+    handle_close(&parent_node, depth)
+}
+
+fn parse_child(
+    tokens: &Vec<Token>,
+    idx: &mut usize,
+    depth: u16,
+    parent_node: String,
+    finished: &mut bool,
+    closing_paren: &mut bool,
+    closing_or: &mut bool,
+) -> Result<ConditionChild, String> {
+    match tokens[*idx].token_type {
+        TokenType::And => {
+            *idx += 1;
+            return handle_and(tokens, idx, depth, finished, closing_paren, closing_or);
+        },
+        TokenType::Or => {
+            *idx += 1;
+            return Ok(handle_or(closing_or, &parent_node, depth))
+        },
+        TokenType::OpenParen => {
+            *idx += 1;
+            return handle_open_paren(tokens, idx, depth, finished, closing_paren, closing_or);
+        },
+        TokenType::CloseParen => {
+            *idx += 1;
+            return Ok(handle_close_paren(closing_paren, &parent_node, depth))
+        },
+        TokenType::EoqToken => {
+            *idx += 1;
+
+            if *closing_paren {
+                return Err("Found end of conditional, but there are unclosed parentheses!".to_string())
+            }
+
+            *finished = true;
+
+            return Ok(handle_close(&parent_node, depth))
+        },
+        TokenType::Identifier => {
+            return handle_literal(tokens, idx, depth, finished, closing_paren, closing_or);
+        },
+        _ => {
+            return Err(format!(
+                "Unexpected token found while parsing conditional expression -> {}",
+                tokens[*idx].lexeme
+            ))
+        }  
+    }
+}
+
+fn recurse_down(
+    tokens: &Vec<Token>,
+    idx: &mut usize,
+    depth: u16,
+    parent_node: String,
+    finished: &mut bool,
+    closing_paren: &mut bool,
+    closing_or: &mut bool,
+) -> Result<ConditionChild, String> {
+    // We aren't finished yet so we might need to parse
+    // properly
+    if *finished {
+        return Ok(handle_close(&parent_node, depth));
     }
 
+    // If we have seen a closing or we need to close out
+    // unless our parent node is an OR, then we need to add
+    // and OR node and begin parsing from there
+    if *closing_paren {
+        return Ok(handle_close(&parent_node, depth));
+    } else if *closing_or {
+        if parent_node == "OR" {
+            *closing_or = false;
+
+            return Ok(
+                ConditionChild::Op(Box::new(OperandNode {
+                    _type: "OR".to_string(),
+                    _depth: depth,
+                    _ls: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
+                        Ok(node) => node,
+                        Err(msg) => return Err(msg)
+                    },
+                    _rs: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
+                        Ok(node) => node,
+                        Err(msg) => return Err(msg)
+                    }
+                }))
+            );
+        }
+
+        return Ok(handle_close(&parent_node, depth));
+    }
+
+    return parse_child(tokens, idx, depth, parent_node, finished, closing_paren, closing_or)
+}
+
+impl ConditionNode {
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
         depth: u16
     ) -> Result<ConditionNode, String> {
-        let root: OperandNode = OperandNode {
-            _type: "OR".to_string(),
-            
-            _ls: match ConditionNode::recurse_build(
-                "OR".to_string(),
-                tokens,
-                idx,
-                depth + 1
-            ) {
-                Ok(node) => node,
-                Err(msg) => return Err(msg)
-            },
-            _rs: match ConditionNode::recurse_build(
-                "OR".to_string(),
-                tokens,
-                idx,
-                depth + 1
-            ) {
-                Ok(node) => node,
-                Err(msg) => return Err(msg)
-            },
+        let mut finished: bool = false;
+        let mut closing_paren: bool = false;
+        let mut closing_or: bool = false;
 
+        let ret: ConditionChild = ConditionChild::Op(Box::new(OperandNode {
+            _type: "OR".to_string(),
             _depth: depth + 1,
-        };
+            _ls: match recurse_down(tokens, idx, depth + 2, "OR".to_string(), &mut finished, &mut closing_paren, &mut closing_or) {
+                Ok(node) => node,
+                Err(msg) => return Err(msg)
+            },
+            _rs: match recurse_down(tokens, idx, depth + 2, "OR".to_string(), &mut finished, &mut closing_paren, &mut closing_or) {
+                Ok(node) => node,
+                Err(msg) => return Err(msg)
+            }
+        }));
 
         return Ok(
             ConditionNode {
-                _condition: ConditionChild::Bool(Box::new(
-                    BoolNode { _value: false, _depth: depth + 1 })),
+                _condition: ret,
                 _depth: depth
             }
         )
@@ -170,8 +404,9 @@ impl fmt::Display for OperandNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-"\n{}(Operand){}{}",
+"\n{}(Operand::{}){}{}",
             get_tab(self._depth),
+            self._type,
             self._ls,
             self._rs,
         )
