@@ -2,14 +2,13 @@
 use chrono::Local;
 
 // TODO: Move these to config?
-const TEST_MODE: bool = true;
-const LOG_LEVEL: i32 = 0;
+pub const TEST_MODE: bool = true;
+pub const LOG_LEVEL: i32 = 0;
 
-const DEBUG: (i32, &str) = (1, "\x1b[90mDebug\x1b[0m");
-const ERROR: (i32, &str) = (4, "\x1b[91mError\x1b[0m");
-const INFO: (i32, &str) = (2, "\x1b[92mInfo\x1b[0m");
-const WARNING: (i32, &str) = (3, "\x1b[93mWarning\x1b[0m");
-
+pub const DEBUG: (i32, &str) = (1, "\x1b[90mDebug\x1b[0m");
+pub const ERROR: (i32, &str) = (4, "\x1b[91mError\x1b[0m");
+pub const INFO: (i32, &str) = (2, "\x1b[92mInfo\x1b[0m");
+pub const WARNING: (i32, &str) = (3, "\x1b[93mWarning\x1b[0m");
 
 fn send_msg(log_level: &str, msg: &str) -> String {
     let timestamp = get_timestamp();

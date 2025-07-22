@@ -1,7 +1,8 @@
-use std::{fmt};
-use crate::eaql::{
+use std::fmt;
+use crate::{eaql::{
     parser::helpers::{get_tab, valid_until_warning, validate_length}, 
-    tokens::{Token, TokenType}};
+    tokens::{Token, TokenType}},
+    utils::logger};
 
 #[derive(Debug, PartialEq)]
 pub struct ConditionNode {
@@ -43,6 +44,20 @@ pub struct BoolNode {
     _depth: u16
 }
 
+fn update_depths(
+    node: &mut ConditionChild
+) -> () {
+    match node {
+        ConditionChild::Op(state) => {
+            state._depth += 1;
+            update_depths(&mut state._ls);
+            update_depths(&mut state._rs);
+            return;
+        },
+        ConditionChild::Bool(state) => state._depth += 1,
+        ConditionChild::Expr(state) => state._depth += 1,
+    }
+}
 
 fn handle_open_paren(
     tokens: &Vec<Token>,
@@ -52,14 +67,28 @@ fn handle_open_paren(
     closing_paren: &mut bool,
     closing_or: &mut bool,
 ) -> Result<ConditionChild, String> {
-    let ret: ConditionChild = ConditionChild::Op(Box::new(OperandNode {
+    let mut ret: ConditionChild = ConditionChild::Op(Box::new(OperandNode {
             _type: "OR".to_string(),
             _depth: depth,
-            _ls: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
+            _ls: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "OR".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
             },
-            _rs: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
+            _rs: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "OR".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
             }
@@ -70,13 +99,26 @@ fn handle_open_paren(
             *idx += 1;
             *closing_paren = false;
 
+            // This really only matters if we're debugging
+            // just makes the depths line up.
+            if logger::LOG_LEVEL <= logger::DEBUG.0 {
+                update_depths(&mut ret);
+            }
+
             return Ok(ConditionChild::Op(Box::new(
                 OperandNode {
                     _type: "AND".to_string(),
                     _ls: ret,
-                    _rs: match recurse_down(tokens, idx, depth + 1, "AND".to_string(), finished, closing_paren, closing_or) {
-                        Ok(node) => node,
-                        Err(msg) => return Err(msg)
+                    _rs: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "AND".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
+                            Ok(node) => node,
+                            Err(msg) => return Err(msg)
                     },
 
                     _depth: depth
@@ -87,13 +129,26 @@ fn handle_open_paren(
             *idx += 1;
             *closing_paren = false;
 
+            // This really only matters if we're debugging
+            // just makes the depths line up.
+            if logger::LOG_LEVEL <= logger::DEBUG.0 {
+                update_depths(&mut ret);
+            }
+         
             return Ok(ConditionChild::Op(Box::new(
                 OperandNode {
                     _type: "OR".to_string(),
                     _ls: ret,
-                    _rs: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
-                        Ok(node) => node,
-                        Err(msg) => return Err(msg)
+                    _rs: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "OR".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
+                            Ok(node) => node,
+                            Err(msg) => return Err(msg)
                     },
 
                     _depth: depth
@@ -126,11 +181,25 @@ fn handle_and(
     Ok(ConditionChild::Op(Box::new(OperandNode {
             _type: "AND".to_string(),
             _depth: depth,
-            _ls: match recurse_down(tokens, idx, depth + 1, "AND".to_string(), finished, closing_paren, closing_or) {
+            _ls: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "AND".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
             },
-            _rs: match recurse_down(tokens, idx, depth + 1, "AND".to_string(), finished, closing_paren, closing_or) {
+            _rs: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "AND".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
             }
@@ -151,7 +220,14 @@ fn handle_literal(
             Err(msg) => return Err(msg)
         })
     );
-    let rs: ConditionChild = match recurse_down(tokens, idx, depth + 1, "AND".to_string(), finished, closing_paren, closing_or) {
+    let rs: ConditionChild = match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "AND".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
         Ok(node) => node,
         Err(msg) => return Err(msg)
     };
@@ -277,13 +353,27 @@ fn recurse_down(
                 ConditionChild::Op(Box::new(OperandNode {
                     _type: "OR".to_string(),
                     _depth: depth,
-                    _ls: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
-                        Ok(node) => node,
-                        Err(msg) => return Err(msg)
+                    _ls: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "OR".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
+                            Ok(node) => node,
+                            Err(msg) => return Err(msg)
                     },
-                    _rs: match recurse_down(tokens, idx, depth + 1, "OR".to_string(), finished, closing_paren, closing_or) {
-                        Ok(node) => node,
-                        Err(msg) => return Err(msg)
+                    _rs: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 1, 
+                        "OR".to_string(), 
+                        finished, 
+                        closing_paren, 
+                        closing_or) {
+                            Ok(node) => node,
+                            Err(msg) => return Err(msg)
                     }
                 }))
             );
@@ -308,11 +398,25 @@ impl ConditionNode {
         let ret: ConditionChild = ConditionChild::Op(Box::new(OperandNode {
             _type: "OR".to_string(),
             _depth: depth + 1,
-            _ls: match recurse_down(tokens, idx, depth + 2, "OR".to_string(), &mut finished, &mut closing_paren, &mut closing_or) {
+            _ls: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 2, 
+                        "OR".to_string(), 
+                        &mut finished, 
+                        &mut closing_paren,
+                        &mut closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
             },
-            _rs: match recurse_down(tokens, idx, depth + 2, "OR".to_string(), &mut finished, &mut closing_paren, &mut closing_or) {
+            _rs: match recurse_down(
+                        tokens, 
+                        idx, 
+                        depth + 2, 
+                        "OR".to_string(), 
+                        &mut finished, 
+                        &mut closing_paren,
+                        &mut closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
             }
