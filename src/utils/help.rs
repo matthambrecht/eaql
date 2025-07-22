@@ -18,7 +18,8 @@ Usage:
     cargo run main.rs <module>
 
 Modules:
-    eaql_repl: EAQL Repl for Testing Transpiling to SQL
+    transpile: EAQL -> SQL Language Transpiler
+    query_test: Query Validity Tester
 ══════════════════════════════════════════════════════
 "#;
 

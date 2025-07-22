@@ -12,7 +12,8 @@ fn main() {
     }
 
     match args[2].as_str() {
-        "eaql_repl" => eaql::repl::run(),
+        "transpile" => utils::logger::warning("Not yet implemented!"),
+        "query_test" => eaql::tester::tester::run(),
         _ => utils::help::display_help(
            Some(format!("Invalid Testing CLI Argument -> {}, see usage!", args[2]).as_str()))
     }

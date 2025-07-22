@@ -1,4 +1,10 @@
-use crate::eaql::tokens::{Token, TokenType};
+use crate::eaql::{
+    language::{
+        tokens::{
+            Token, TokenType
+        }
+    }
+};
 
 const TAB_SIZE: u16 = 2;
 

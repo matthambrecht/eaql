@@ -1,8 +1,16 @@
 use std::{fmt};
-use crate::eaql::parser::helpers::{validate_length, get_tab}; 
-use crate::eaql::tokens::{Token, TokenType};
-use crate::eaql::parser::get::{
-    GetNode
+use crate::eaql::{
+    language::{
+        parser::{
+            helpers::{
+                validate_length, get_tab
+            },
+            get::GetNode
+        },
+        tokens::{
+            Token, TokenType
+        },
+    }
 };
 
 #[derive(Debug)]

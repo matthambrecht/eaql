@@ -1,11 +1,15 @@
 use std::fmt;
-use crate::eaql::tokens::{
-    Token,
-    TokenType,
-    IDENTIFER_STOPS,
-    SINGLE_DOUBLE_START_TOKENS,
-    SINGLE_START_TOKENS,
-    SYSTEM_KEYWORDS
+use crate::eaql::{
+    language::{
+        tokens::{
+            Token,
+            TokenType,
+            IDENTIFER_STOPS,
+            SINGLE_DOUBLE_START_TOKENS,
+            SINGLE_START_TOKENS,
+            SYSTEM_KEYWORDS
+        }
+    }
 };
 
 #[derive(Debug)]

@@ -1,12 +1,19 @@
 use std::fmt;
-use crate::eaql::tokens::{Token, TokenType};
-use crate::eaql::parser::helpers::{
-    get_tab,
-    validate_length,
-    peek_one
-};
-use crate::eaql::parser::conditional::{
-    ConditionNode
+use crate::eaql::{
+    language::{
+        tokens::{
+            Token, TokenType
+        },
+        parser::{
+            conditional::{
+                ConditionNode
+
+            },
+            helpers::{
+                get_tab, validate_length, peek_one
+            },
+        }
+    }
 };
 
 #[derive(Debug)]
