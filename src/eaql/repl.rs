@@ -31,8 +31,9 @@ pub fn run() {
         };
 
         // This will go once we see the ability for mutliple queries chained together
-        if tokens.len() == 0 && tokens[tokens.len() - 1].token_type != tokens::TokenType::EoqToken {
+        if tokens.len() != 0 && tokens[tokens.len() - 1].token_type != tokens::TokenType::EoqToken {
             logger::warning("Missing end of query delimiter!");
+            continue;
         }
 
         // Parse into an Abstract Syntax Tree
