@@ -34,7 +34,7 @@ pub fn debug(msg: &str) -> () {
     }
 }
 
-pub fn _info(msg: &str) -> () {
+pub fn info(msg: &str) -> () {
     if TEST_MODE && LOG_LEVEL <= INFO.0 {
         println!("{}", send_msg("info", msg));
     }

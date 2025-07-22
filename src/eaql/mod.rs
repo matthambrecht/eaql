@@ -1,5 +1,3 @@
-pub mod parser;
+pub mod language;
 pub mod eaql;
-pub mod lexer;
-pub mod repl;
-pub mod tokens;
+pub mod tester;

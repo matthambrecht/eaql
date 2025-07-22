@@ -1,8 +1,17 @@
 use std::fmt;
-use crate::{eaql::{
-    parser::helpers::{get_tab, valid_until_warning, validate_length}, 
-    tokens::{Token, TokenType}},
-    utils::logger};
+use crate::{
+    eaql::{
+        language::{
+            parser::helpers::{
+                get_tab, valid_until_warning, validate_length
+            }, 
+            tokens::{
+                Token, TokenType
+            }
+        }
+    },
+    utils::logger
+};
 
 #[derive(Debug, PartialEq)]
 pub struct ConditionNode {
