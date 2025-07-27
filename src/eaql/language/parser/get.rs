@@ -109,6 +109,20 @@ impl GetNode {
             _depth: depth
         })
     }
+
+    pub fn transpile(
+        &self,
+    ) -> String {
+        [
+            Some(self._columns.transpile()),
+            Some(self._table.transpile()),
+            self._filter.as_ref().map(|f| f.transpile()),
+        ]
+            .into_iter()
+            .flatten()
+            .collect::<Vec<String>>()
+            .join(" ")
+    }
 }
 
 impl TableNode {
@@ -134,6 +148,12 @@ impl TableNode {
 
                 _depth: depth
         });
+    }
+
+    pub fn transpile(
+        &self
+    ) -> String {
+        format!("FROM {}", self.table_name)
     }
 }
 
@@ -199,6 +219,18 @@ make sure they're in a valid list notation.".to_string()
                 _depth: depth
         });
     }
+
+    pub fn transpile(
+        &self
+    ) -> String {
+        let columns: String = if self.is_wildcard {
+            "*".to_string()
+        } else {
+            self.column_names.join(", ")
+        };
+        
+        return format!("SELECT {}", columns);
+    }
 }
 
 impl FilterNode {
@@ -231,6 +263,12 @@ impl FilterNode {
         }
 
         return Ok(None);
+    }
+
+    pub fn transpile(
+        &self
+    ) -> String {
+        format!("WHERE {}", self._condition.transpile())
     }
 }
 

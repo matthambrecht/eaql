@@ -16,8 +16,9 @@ use crate::{
 #[derive(Debug, PartialEq)]
 pub struct ConditionNode {
     _condition: ConditionChild,
+    _literal: String,
 
-    _depth: u16
+    _depth: u16,
 }
 
 #[derive(Debug, PartialEq)]
@@ -169,10 +170,12 @@ fn handle_open_paren(
             
             return Ok(ret);
         },
+        // This will become a PostProcessorEntrance
         TokenType::EoqToken => {
             *closing_paren = false;
             *finished = true;
-
+            *idx += 1;
+            
             return Ok(ret);
         },
         _ => return Err(format!("Something went wrong parsing a nested conditional, expected a closing parentheses, 'and' or 'or', but got '{}' instead.", tokens[*idx].lexeme))
@@ -311,6 +314,7 @@ fn parse_child(
             *idx += 1;
             return Ok(handle_close_paren(closing_paren, &parent_node, depth))
         },
+        // This will become a PostProcessorEntrance
         TokenType::EoqToken => {
             *idx += 1;
 
@@ -403,6 +407,7 @@ impl ConditionNode {
         let mut finished: bool = false;
         let mut closing_paren: bool = false;
         let mut closing_or: bool = false;
+        let start_idx: usize = *idx;
 
         let ret: ConditionChild = ConditionChild::Op(Box::new(OperandNode {
             _type: "OR".to_string(),
@@ -430,13 +435,25 @@ impl ConditionNode {
                 Err(msg) => return Err(msg)
             }
         }));
-
+        
         return Ok(
             ConditionNode {
                 _condition: ret,
-                _depth: depth
+                _depth: depth,
+                _literal: {
+                    tokens[start_idx..*idx - 1].iter()
+                        .map(|v| v.lexeme.as_str())
+                        .collect::<Vec<&str>>()
+                        .join(" ")
+                }
             }
         )
+    }
+
+    pub fn transpile(
+        &self
+    ) -> String {
+       format!("{}", self._literal) 
     }
 }
 
