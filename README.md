@@ -1,4 +1,10 @@
-<p align="center"><img src="docs/images/logos/logo-256-no-bg-grey.png"/></p>
+<div align="center">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./docs/images/logos/eaqldb-logo-white.svg">
+        <source media="(prefers-color-scheme: light)" srcset="./docs/images/logos/eaqldb-logo-black.svg">
+        <img height="250px" src=""/>
+    </picture>
+</div>
 
 <p align="center"><img href="https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml" src="https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml/badge.svg"/></p>
 
