@@ -92,7 +92,7 @@ impl Lexer {
                 &query.chars().nth(*current).unwrap()) {
                 let tmp = &query[*start..*current];
 
-                if let Some(keyword_token) = SYSTEM_KEYWORDS.get(tmp) {
+                if let Some(keyword_token) = SYSTEM_KEYWORDS.get(tmp.to_lowercase().as_str()) {
                     *token_type = keyword_token.clone();
                 }
 
@@ -297,7 +297,9 @@ impl Lexer {
         Ok(Lexer {
             tokens: toks
                 .into_iter()
-                .filter(|x: &Token| x.token_type != TokenType::WhitespaceToken)
+                .filter(|x: &Token| x.token_type != TokenType::WhitespaceToken &&
+                    x.token_type != TokenType::NullToken
+                )
                 .collect()
         })
     }

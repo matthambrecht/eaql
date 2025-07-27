@@ -119,7 +119,12 @@ lazy_static! {
 
             ("is", TokenType::Equal),
 
-            ("or", TokenType::Or)
+            ("or", TokenType::Or),
+
+            // Tokens to be ignored by the lexer
+            ("me", TokenType::NullToken),
+            ("the", TokenType::NullToken),
+            ("it", TokenType::NullToken)
         ]);
     };
 }
