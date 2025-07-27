@@ -1,15 +1,20 @@
 use std::{fmt};
-use crate::eaql::{
-    language::{
-        parser::{
-            helpers::{
-                validate_length, get_tab
+use crate::{
+    utils::{
+        logger
+    },
+    eaql::{
+        language::{
+            parser::{
+                helpers::{
+                    validate_length, get_tab
+                },
+                get::GetNode
             },
-            get::GetNode
-        },
-        tokens::{
-            Token, TokenType
-        },
+            tokens::{
+                Token, TokenType
+            },
+        }
     }
 };
 
@@ -36,12 +41,24 @@ impl Query {
                 &tokens, idx, depth + 1
             )?;
             return Ok(Query {
-                _get: Some(get_node), 
+                _get: Some(get_node),
                 _depth: depth
             });
         }
 
         return Err("Query failed all requirements! Please review documentation.".to_string());
+    }
+
+    pub fn transpile(
+        &self
+    ) -> () {
+        let transpiled: String = if let Some(get) = &self._get {
+            get.transpile()
+        } else {
+            "".to_string()
+        };
+
+        logger::info(&format!("SQL Query -> {};", transpiled));
     }
 }
 
