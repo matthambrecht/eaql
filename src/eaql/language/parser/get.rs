@@ -428,6 +428,11 @@ mod tests {
     fn test_column_parsing_error() {
         let input: Vec<Token> = vec![
             Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
                 TokenType::Identifier,
                 &"id".to_string(),
                 &"id".to_string(),
@@ -449,7 +454,7 @@ mod tests {
             )
         ];
 
-        let mut idx: usize = 0;
+        let mut idx: usize = 1;
         let depth: u16 = 0;
         
         match ColumnNode::parse(
@@ -465,6 +470,11 @@ mod tests {
     fn test_column_parsing_normal_wildcard() {
         let input: Vec<Token> = vec![
             Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
                 TokenType::WildcardKeyword,
                 &"".to_string(),
                 &"all".to_string(),
@@ -475,10 +485,10 @@ mod tests {
             column_names: vec![],
             is_wildcard: true,
 
-            _literal: "all".to_string(),
+            _literal: "get all".to_string(),
             _depth: 0
         };
-        let mut idx: usize = 0;
+        let mut idx: usize = 1;
         let depth: u16 = 0;
         
         match ColumnNode::parse(
@@ -494,6 +504,11 @@ mod tests {
     fn test_column_parsing_normal_single() {
         let input: Vec<Token> = vec![
             Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
                 TokenType::Identifier,
                 &"id".to_string(),
                 &"id".to_string(),
@@ -506,10 +521,10 @@ mod tests {
             ],
             is_wildcard: false,
 
-            _literal: "id".to_string(),
+            _literal: "get id".to_string(),
             _depth: 0
         };
-        let mut idx: usize = 0;
+        let mut idx: usize = 1;
         let depth: u16 = 0;
         
         match ColumnNode::parse(
@@ -524,6 +539,11 @@ mod tests {
     #[test]
     fn test_column_parsing_normal_multiple() {
         let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
             Token::new(
                 TokenType::Identifier,
                 &"id".to_string(),
@@ -559,10 +579,10 @@ mod tests {
             ],
             is_wildcard: false,
 
-            _literal: "id , cost and time".to_string(),
+            _literal: "get id , cost and time".to_string(),
             _depth: 0
         };
-        let mut idx: usize = 0;
+        let mut idx: usize = 1;
         let depth: u16 = 0;
         
         match ColumnNode::parse(
