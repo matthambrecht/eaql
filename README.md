@@ -8,7 +8,7 @@
 
 <p align="center"><img href="https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml" src="https://github.com/matthambrecht/eaql-db/actions/workflows/tests.yaml/badge.svg"/></p>
 
-**EAQL (English Augmented Query Language)** is a simplified, English-like query language designed as a stepping stone to SQL. It's built for learners, educators, and simple projects where traditional SQL may feel intimidating or overly complex.
+**EAQL (English Augmented Query Language)** is a simplified, English-like query language designed as an even simpler stepping stone into SQL. It's built for learners, educators, and simple projects where traditional SQL may feel intimidating or overly complex.
 
 ~~Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers the barrier to entry for understanding databases and query logic, making it perfect for prototyping, classrooms, or learning on your own.~~
 
@@ -20,7 +20,7 @@
 EAQL makes data querying more human-readable. Inspired by SQL but based on natural English, it allows statements like:
 
 ```
-Get everything from drinks wherever the price is 5 and the category is "coffee" then sort it in ascending order.
+Get me everything from drinks wherever the price is 5 and the category is "coffee" then sort it in ascending order.
 ```
 
 ...which transpiles to:
@@ -31,9 +31,12 @@ SELECT * FROM drinks WHERE price = 5 and category = "coffee" ORDER BY ASC;
 
 #### Features:
 
-* Custom parser and compiler written in **Rust**
+* Custom parser in **Rust**
 * Beginner-friendly error feedback
 * Transpiler REPL for testing EAQL → SQL
+    * ![](./docs/images/screenshots/transpile.png)
+* Test REPL for testing validity of EAQL queries
+    * ![](./docs/images/screenshots/tester.png)
 
 #### Coming Soon:
 

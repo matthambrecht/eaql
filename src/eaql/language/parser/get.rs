@@ -1,18 +1,18 @@
-use std::fmt;
-use crate::eaql::{
-    language::{
-        tokens::{
-            Token, TokenType
-        },
+use std::{fmt, usize};
+use crate::{
+    eaql::language::{
         parser::{
-            conditional::{
-                ConditionNode
-
-            },
+            conditional::ConditionNode,
             helpers::{
-                get_tab, validate_length, peek_one
+                get_tab, peek_one, validate_length
             },
+        }, tokens::{
+            Token, TokenType
         }
+    },
+    utils::colors::{
+        colorize,
+        AnsiColor
     }
 };
 
@@ -30,6 +30,7 @@ pub struct GetNode {
 pub struct TableNode {
     table_name: String,
 
+    _literal: String,
     _depth: u16
 }    
 
@@ -38,13 +39,15 @@ pub struct ColumnNode {
     column_names: Vec<String>,
     is_wildcard: bool,
 
+    _literal: String,
     _depth: u16 
 }
 
 #[derive(Debug, PartialEq)]
 pub struct FilterNode {
-    _condition: ConditionNode,
+    condition: ConditionNode,
 
+    _literal: String,
     _depth: u16
 }
 
@@ -112,16 +115,34 @@ impl GetNode {
 
     pub fn transpile(
         &self,
-    ) -> String {
-        [
-            Some(self._columns.transpile()),
-            Some(self._table.transpile()),
-            self._filter.as_ref().map(|f| f.transpile()),
-        ]
-            .into_iter()
-            .flatten()
-            .collect::<Vec<String>>()
-            .join(" ")
+    ) -> (String, String) {
+        let columns: (String, String) = self._columns.transpile();
+        let table: (String, String) = self._table.transpile();
+        let filter: Option<(String, String)> = match &self._filter {
+            Some(filter) => Some(filter.transpile()),
+            None => None
+        };
+
+        (
+            [
+                Some(columns.0),
+                Some(table.0),
+                filter.as_ref().map(|f| f.0.clone()),
+            ]
+                .into_iter()
+                .flatten()
+                .collect::<Vec<String>>()
+                .join(" "),
+            [
+                Some(columns.1),
+                Some(table.1),
+                filter.as_ref().map(|f| f.1.clone()),
+            ]
+                .into_iter()
+                .flatten()
+                .collect::<Vec<String>>()
+                .join(" "),
+        )
     }
 }
 
@@ -129,7 +150,10 @@ impl TableNode {
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
-        depth: u16) -> Result<TableNode, String> {
+        depth: u16
+    ) -> Result<TableNode, String> {
+        let start_idx: usize = *idx;
+
         if tokens[*idx].token_type == TokenType::From &&
         peek_one(tokens, idx) == TokenType::Identifier {
             *idx += 1;
@@ -146,14 +170,25 @@ impl TableNode {
             TableNode {
                 table_name: tokens[*idx - 1].literal.clone(),
 
+                _literal: {
+                    tokens[start_idx..*idx].iter()
+                        .map(|v| v.lexeme.as_str())
+                        .collect::<Vec<&str>>()
+                        .join(" ")
+                        },
+
+
                 _depth: depth
         });
     }
 
     pub fn transpile(
         &self
-    ) -> String {
-        format!("FROM {}", self.table_name)
+    ) -> (String, String) {
+        (
+            colorize(&self._literal, AnsiColor::Blue),
+            colorize(&format!("FROM {}", self.table_name), AnsiColor::Blue)
+        )
     }
 }
 
@@ -195,7 +230,11 @@ make sure they're in a valid list notation.".to_string()
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
-        depth: u16) -> Result<ColumnNode, String> {
+        depth: u16
+    ) -> Result<ColumnNode, String> {
+        // We subtract 1 from this because Get keyword has been processed already
+        let start_idx: usize = *idx - 1; 
+
         if tokens[*idx].token_type == TokenType::WildcardKeyword {
             *idx += 1;
 
@@ -203,6 +242,12 @@ make sure they're in a valid list notation.".to_string()
                 is_wildcard: true,
                 column_names: vec![],
 
+                _literal: {
+                    tokens[start_idx..*idx].iter()
+                        .map(|v| v.lexeme.as_str())
+                        .collect::<Vec<&str>>()
+                        .join(" ")
+                        },
                 _depth: depth
             });
         }
@@ -216,20 +261,30 @@ make sure they're in a valid list notation.".to_string()
                 is_wildcard: false,
                 column_names: column_names,
 
+                _literal: {
+                    tokens[start_idx..*idx].iter()
+                        .map(|v| v.lexeme.as_str())
+                        .collect::<Vec<&str>>()
+                        .join(" ")
+                    },
                 _depth: depth
         });
     }
 
     pub fn transpile(
         &self
-    ) -> String {
+    ) -> (String, String) {
         let columns: String = if self.is_wildcard {
             "*".to_string()
         } else {
             self.column_names.join(", ")
         };
-        
-        return format!("SELECT {}", columns);
+
+
+        (
+            colorize(&self._literal, AnsiColor::Yellow),
+            colorize(&format!("SELECT {}", columns), AnsiColor::Yellow)
+        )
     }
 }
 
@@ -238,8 +293,9 @@ impl FilterNode {
         tokens: &Vec<Token>,
         idx: &mut usize,
         depth: u16) -> Result<Option<FilterNode>, String> {
-        
+
         if tokens[*idx].token_type == TokenType::FilterKeyword {
+            let start_idx: usize = *idx;
             *idx += 1;
 
             let condition_node: ConditionNode = match ConditionNode::parse(
@@ -256,8 +312,14 @@ impl FilterNode {
 
             return Ok(
                 Some(FilterNode {
-                    _condition: condition_node,
-
+                    condition: condition_node,
+                    
+                    _literal: {
+                        tokens[start_idx..*idx - 1].iter()
+                            .map(|v| v.lexeme.as_str())
+                            .collect::<Vec<&str>>()
+                            .join(" ")
+                        },
                     _depth: depth
             }));
         }
@@ -267,8 +329,11 @@ impl FilterNode {
 
     pub fn transpile(
         &self
-    ) -> String {
-        format!("WHERE {}", self._condition.transpile())
+    ) -> (String, String) {
+        (
+            colorize(&self._literal, AnsiColor::Cyan),
+            colorize(&format!("WHERE {}", self.condition.transpile()), AnsiColor::Cyan)
+        )
     }
 }
 
@@ -320,7 +385,7 @@ impl fmt::Display for FilterNode {
             f,
 "\n{}(FilterNode){}",
             get_tab(self._depth),
-            self._condition
+            self.condition
         )
     }
 }
@@ -363,6 +428,11 @@ mod tests {
     fn test_column_parsing_error() {
         let input: Vec<Token> = vec![
             Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
                 TokenType::Identifier,
                 &"id".to_string(),
                 &"id".to_string(),
@@ -384,7 +454,7 @@ mod tests {
             )
         ];
 
-        let mut idx: usize = 0;
+        let mut idx: usize = 1;
         let depth: u16 = 0;
         
         match ColumnNode::parse(
@@ -400,6 +470,11 @@ mod tests {
     fn test_column_parsing_normal_wildcard() {
         let input: Vec<Token> = vec![
             Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
                 TokenType::WildcardKeyword,
                 &"".to_string(),
                 &"all".to_string(),
@@ -409,9 +484,11 @@ mod tests {
         let expected: ColumnNode = ColumnNode {
             column_names: vec![],
             is_wildcard: true,
+
+            _literal: "get all".to_string(),
             _depth: 0
         };
-        let mut idx: usize = 0;
+        let mut idx: usize = 1;
         let depth: u16 = 0;
         
         match ColumnNode::parse(
@@ -427,6 +504,11 @@ mod tests {
     fn test_column_parsing_normal_single() {
         let input: Vec<Token> = vec![
             Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
                 TokenType::Identifier,
                 &"id".to_string(),
                 &"id".to_string(),
@@ -438,9 +520,11 @@ mod tests {
                 "id".to_string(),
             ],
             is_wildcard: false,
+
+            _literal: "get id".to_string(),
             _depth: 0
         };
-        let mut idx: usize = 0;
+        let mut idx: usize = 1;
         let depth: u16 = 0;
         
         match ColumnNode::parse(
@@ -455,6 +539,11 @@ mod tests {
     #[test]
     fn test_column_parsing_normal_multiple() {
         let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
             Token::new(
                 TokenType::Identifier,
                 &"id".to_string(),
@@ -489,9 +578,11 @@ mod tests {
                 "time".to_string()
             ],
             is_wildcard: false,
+
+            _literal: "get id , cost and time".to_string(),
             _depth: 0
         };
-        let mut idx: usize = 0;
+        let mut idx: usize = 1;
         let depth: u16 = 0;
         
         match ColumnNode::parse(
@@ -542,6 +633,8 @@ mod tests {
 
         let expected: TableNode = TableNode {
             table_name: "table_name".to_string(),
+            
+            _literal: "from table_name".to_string(),
             _depth: 0
         };
         let mut idx: usize = 0;

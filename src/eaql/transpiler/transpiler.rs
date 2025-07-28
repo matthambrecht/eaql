@@ -1,15 +1,14 @@
 use crate::{
-    utils::{
-        io,
-        logger,
-    },
     eaql::{
         eaql::process_query,
-        language::{
-            parser::{
-                parser::Query
-            }
+        language::parser::parser::Query,
+    }, utils::{
+        colors::{
+            colorize,
+            AnsiColor
         },
+        io,
+        logger
     }
 };
 
@@ -25,6 +24,13 @@ pub fn run() {
             }
         };
 
-        parsed.transpile();
+        let transpiled: (String, String) = parsed.transpile();
+        
+        println!(
+            "‣ {} {};",
+            colorize("Reduced Query:", AnsiColor::BrightBlack), transpiled.0); 
+        println!(
+            "‣ {} {};",
+            colorize("SQL Query:", AnsiColor::BrightBlack), transpiled.1); 
     };
 }   

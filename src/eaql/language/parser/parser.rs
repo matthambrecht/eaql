@@ -51,14 +51,12 @@ impl Query {
 
     pub fn transpile(
         &self
-    ) -> () {
-        let transpiled: String = if let Some(get) = &self._get {
-            get.transpile()
+    ) -> (String, String) {
+        if let Some(get) = &self._get {
+            return get.transpile();
         } else {
-            "".to_string()
+            logger::error("A fatal error occurred while transpiling your query!");
         };
-
-        logger::info(&format!("SQL Query -> {};", transpiled));
     }
 }
 

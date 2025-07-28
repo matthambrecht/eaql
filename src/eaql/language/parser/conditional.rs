@@ -442,7 +442,11 @@ impl ConditionNode {
                 _depth: depth,
                 _literal: {
                     tokens[start_idx..*idx - 1].iter()
-                        .map(|v| v.lexeme.as_str())
+                        .map(|v| if v.token_type == TokenType::Equal {
+                            "="
+                        } else {
+                            v.lexeme.as_str()
+                        })
                         .collect::<Vec<&str>>()
                         .join(" ")
                 }

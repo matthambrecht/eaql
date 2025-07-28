@@ -73,6 +73,7 @@
 <Sort> ::= "sort"
 <Not> ::= "not"
 <Or> ::= "or"
+<NullToken> ::= "me" | "the"
 
 ### Helper Tokens
 <Letter> = "A" | "B" | "C" | "D" | "E" | "F" | "G"

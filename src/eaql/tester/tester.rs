@@ -1,7 +1,11 @@
 use crate::{
     utils::{
         logger,
-        io
+        io,
+        colors::{
+            colorize,
+            AnsiColor
+        }
     },
     eaql::{
         eaql::process_query
@@ -14,8 +18,8 @@ pub fn run() {
         let query: String = io::query_stdin();
 
         match process_query(&query) {
-            Some(_) => logger::info("Valid query!"),
-            None => logger::warning("Invalid query, see above warnings for issues!")
+            Some(_) => println!("{}", colorize("Valid query!", AnsiColor::BrightGreen)),
+            None => println!("{}", colorize("Invalid query, see above warnings for issues!", AnsiColor::BrightRed))
         };
     }
 }
