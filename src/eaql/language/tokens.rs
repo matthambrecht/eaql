@@ -16,7 +16,7 @@ pub enum TokenType {
     // Keywords
     DeleteKeyword, CreateKeyword, SortHelper, SortType,
     WildcardKeyword, FilterKeyword, PostProcessorEntrance,
-    Database, Get, From, And, Or, Order, Sort, Not,
+    Database, Get, From, And, Or, Order, Sort, Not, LimitKeyword,
 
     // Defaults
     UnknownToken, WhitespaceToken, NullToken
@@ -96,10 +96,13 @@ lazy_static! {
 
             ("where", TokenType::FilterKeyword),
             ("whenever", TokenType::FilterKeyword),
+            ("wherever", TokenType::FilterKeyword),
 
             ("then", TokenType::PostProcessorEntrance),
             ("afterwords", TokenType::PostProcessorEntrance),
             ("after", TokenType::PostProcessorEntrance),
+
+            ("limit", TokenType::LimitKeyword),
 
             ("database", TokenType::Database),
 
@@ -124,7 +127,9 @@ lazy_static! {
             // Tokens to be ignored by the lexer
             ("me", TokenType::NullToken),
             ("the", TokenType::NullToken),
-            ("it", TokenType::NullToken)
+            ("it", TokenType::NullToken),
+            ("in", TokenType::NullToken),
+            ("to", TokenType::NullToken)
         ]);
     };
 }

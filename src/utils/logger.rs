@@ -7,7 +7,7 @@ use crate::utils::colors::{
 
 // TODO: Move these to config?
 pub const TEST_MODE: bool = true;
-pub const LOG_LEVEL: i32 = 3;
+pub const LOG_LEVEL: i32 = 0;
 
 pub const DEBUG: (i32, &str, AnsiColor) = (1, "Debug", AnsiColor::BrightBlack);
 pub const ERROR: (i32, &str, AnsiColor) = (4, "Error", AnsiColor::BrightRed);

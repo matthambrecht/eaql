@@ -1,6 +1,5 @@
 use crate::{
     utils::{
-        logger,
         io,
         colors::{
             colorize,

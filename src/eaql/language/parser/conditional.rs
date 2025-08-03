@@ -170,15 +170,21 @@ fn handle_open_paren(
             
             return Ok(ret);
         },
-        // This will become a PostProcessorEntrance
-        TokenType::EoqToken => {
+        TokenType::PostProcessorEntrance => {
             *closing_paren = false;
             *finished = true;
-            *idx += 1;
             
             return Ok(ret);
         },
-        _ => return Err(format!("Something went wrong parsing a nested conditional, expected a closing parentheses, 'and' or 'or', but got '{}' instead.", tokens[*idx].lexeme))
+        TokenType::EoqToken => {
+            *closing_paren = false;
+            *finished = true;
+
+            return Ok(ret);
+        },
+        _ => return Err(format!("Something went wrong parsing a nested conditional: Expected a closing parentheses, \
+        post-processor entrance, end-of-query, 'and' or 'or', \
+        but got '{}' instead.", tokens[*idx].lexeme))
     }
 }
 
@@ -314,10 +320,16 @@ fn parse_child(
             *idx += 1;
             return Ok(handle_close_paren(closing_paren, &parent_node, depth))
         },
-        // This will become a PostProcessorEntrance
-        TokenType::EoqToken => {
-            *idx += 1;
+        TokenType::PostProcessorEntrance => {
+            if *closing_paren {
+                return Err("Found end of conditional, but there are unclosed parentheses!".to_string())
+            }
 
+            *finished = true;
+
+            return Ok(handle_close(&parent_node, depth))
+        },
+        TokenType::EoqToken => {
             if *closing_paren {
                 return Err("Found end of conditional, but there are unclosed parentheses!".to_string())
             }
@@ -441,7 +453,7 @@ impl ConditionNode {
                 _condition: ret,
                 _depth: depth,
                 _literal: {
-                    tokens[start_idx..*idx - 1].iter()
+                    tokens[start_idx..*idx].iter()
                         .map(|v| if v.token_type == TokenType::Equal {
                             "="
                         } else {
