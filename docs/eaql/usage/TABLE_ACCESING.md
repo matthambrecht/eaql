@@ -2,16 +2,23 @@
 Table accessing queries require 4 parts: target table, associated columns, filters (limiting queries based on table values), and post-processors (i.e. limiting number of results).
 
 ## Parts of Query
+### Table of Contents
+1. [Table](#choosing-a-table-name)
+2. [Columns](#choosing-target-columns)
+3. [Filters](#filters-optional)
+4. [Post-Processors](#post-processors-optional)
+    1. [Limit](#limit-post-processor)
+
 ### Choosing a Table Name
 - **Format**: [[Get Keyword](#get-keywords)] ([Column Selection](#choosing-target-columns)) [[From Keyword](#from-keywords)] {Table Name}
 - **Example**: `get column_name from table_name`
 
 ### Choosing Target Columns
-- **Format**: Column(s) can be listed in standard english listing format or as a comma-separated list.
+- **Format**: Column(s) can be listed in standard english listing format or as a comma-separated list. You are also able to get all columns by using a [wildcard keyword](#wildcard-keywords).
 - **Example**: `column_1, column_2 and column_3`
 
 ### Filters (Optional)
-- **Format**: This is just listed as a mathematical boolean expression. Keep in mind, order of operations is determined by parentheses and ordring at this point in time, this *will* not be the end format and is a more simplified placeholder for furture versions. This means that `a and b or c and c` is treated as `(a and (b or (c and (c))))`. If you don't understand this concept please see this first: [logical expressions](https://runestone.academy/ns/books/published/thinkcspy/Selection/Logicaloperators.html).
+- **Format**: This is just listed as a mathematical boolean expression. If you don't understand this concept please see this first: [logical expressions](https://runestone.academy/ns/books/published/thinkcspy/Selection/Logicaloperators.html).
 - **Example**: `cost < 15 and (expiration_year > 2026 or best_by_date_exists = False)`
 
 - [Logical Keywords](#logical-keywords)
@@ -38,6 +45,13 @@ Indicates during retrieval which table we are getting data from.
 
 - From
 - In
+
+### Wildcard Keywords
+Indicates during retrieval that we would like to get all columns from a specific table.
+
+- All
+- Everything
+- Any
 
 ### Logical Keywords
 - And
