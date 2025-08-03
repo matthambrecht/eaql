@@ -6,6 +6,9 @@ use crate::{
             helpers::{
                 get_tab, peek_one, validate_length
             },
+            postprocessor::{
+                PostProcessorNode
+            },
         }, tokens::{
             Token, TokenType
         }
@@ -51,11 +54,6 @@ pub struct FilterNode {
     _depth: u16
 }
 
-#[derive(Debug)]
-pub struct PostProcessorNode {
-    _depth: u16
-}
-
 impl GetNode {
    pub fn parse(
         tokens: &Vec<Token>,
@@ -66,52 +64,57 @@ impl GetNode {
             idx,
             true)?;
 
-        let _columns: ColumnNode = match ColumnNode::parse(
+        let columns: ColumnNode = match ColumnNode::parse(
             tokens,
             idx,
-            depth + 1) {
-                Ok(column) => {
-                    column
-                },
-                Err(err) => {
-                    return Err(err);
-                },
+            depth + 1
+        ) {
+            Ok(column) => column,
+            Err(err) => return Err(err)
         };
 
-        let _table: TableNode = match TableNode::parse(
+        let table: TableNode = match TableNode::parse(
             tokens,
             idx,
-            depth + 1) {
-                Ok(table) => {
-                    table
-                },
-                Err(err) => {
-                    return Err(err);
-                },
+            depth + 1
+        ) {
+            Ok(table) => table,
+            Err(err) => return Err(err),
         };
 
-        let _filter: Option<FilterNode> = match FilterNode::parse(
+        let filter: Option<FilterNode> = match FilterNode::parse(
             tokens,
             idx,
-            depth + 1) {
-                Ok(filter) => {
-                   filter 
-                },
-                Err(err) => {
-                    return Err(err);
-                },
-            };
+            depth + 1
+        ) {
+            Ok(filter) => filter,
+            Err(err) => return Err(err),
+        };
+
+        let postprocessor: Option<PostProcessorNode> = match PostProcessorNode::parse(
+            tokens,
+            idx,
+            depth + 1
+        ) {
+            Ok(postprocessor) => postprocessor,
+            Err(msg) => return Err(msg)
+        };
+
+        validate_length(tokens, idx, true)?;
+
+        if tokens[*idx].token_type != TokenType::EoqToken {
+            return Err(format!("Unexpected token '{}', expected end-of-query token by this point.", tokens[*idx].lexeme))
+        }
 
         Ok(GetNode {
-            _table: _table,
-            _columns: _columns,
-            _filter: _filter,
-            _postprocessor: Some(PostProcessorNode {
-                _depth: depth + 1
-            }),
+            _table: table,
+            _columns: columns,
+            _filter: filter,
+            _postprocessor: postprocessor, 
+
             _depth: depth
         })
-    }
+}
 
     pub fn transpile(
         &self,
@@ -122,12 +125,17 @@ impl GetNode {
             Some(filter) => Some(filter.transpile()),
             None => None
         };
+        let postprocessor: Option<(String, String)> = match &self._postprocessor {
+            Some(postprocessor) => Some(postprocessor.transpile()),
+            None => None
+        };
 
         (
             [
                 Some(columns.0),
                 Some(table.0),
                 filter.as_ref().map(|f| f.0.clone()),
+                postprocessor.as_ref().map(|f| f.0.clone()),
             ]
                 .into_iter()
                 .flatten()
@@ -137,6 +145,7 @@ impl GetNode {
                 Some(columns.1),
                 Some(table.1),
                 filter.as_ref().map(|f| f.1.clone()),
+                postprocessor.as_ref().map(|f| f.1.clone()),
             ]
                 .into_iter()
                 .flatten()
@@ -315,7 +324,7 @@ impl FilterNode {
                     condition: condition_node,
                     
                     _literal: {
-                        tokens[start_idx..*idx - 1].iter()
+                        tokens[start_idx..*idx].iter()
                             .map(|v| v.lexeme.as_str())
                             .collect::<Vec<&str>>()
                             .join(" ")
@@ -336,7 +345,6 @@ impl FilterNode {
         )
     }
 }
-
 
 // Display Functions
 impl fmt::Display for GetNode {
@@ -364,18 +372,6 @@ impl fmt::Display for GetNode {
                 get_tab(self._depth + 1),
                 get_tab(self._depth + 2)))
         )
-    }
-}
-
-impl fmt::Display for PostProcessorNode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-"\n{}(PostProcessorNode)
-{}N/A",
-            get_tab(self._depth),
-            get_tab(self._depth + 1),
-          )
     }
 }
 
@@ -419,7 +415,7 @@ impl fmt::Display for ColumnNode {
     }
 }
 
-// Begin Lexer Tests
+// Begin Get Tests
 #[cfg(test)]
 mod tests {
     use super::*;
