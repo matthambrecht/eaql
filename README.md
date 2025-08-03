@@ -10,9 +10,14 @@
 
 **EAQL (English Augmented Query Language)** is a simplified, English-like query language designed as an even simpler stepping stone into SQL. It's built for learners, educators, and simple projects where traditional SQL may feel intimidating or overly complex.
 
-~~Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers the barrier to entry for understanding databases and query logic, making it perfect for prototyping, classrooms, or learning on your own.~~
+<!-- ~~Bundled with **EAQL-DB**, a lightweight in-memory database, this project lowers the barrier to entry for understanding databases and query logic, making it perfect for prototyping, classrooms, or learning on your own.~~ -->
 
 ---
+
+## Table of Contents
+1. [Whats Included](#whats-included)
+2. [Documentation](#documentation)
+3. [Why EAQL?](#why-eaql)
 
 ## What’s Included
 ### EAQL (The Language)
@@ -38,21 +43,21 @@ SELECT * FROM drinks WHERE price = 5 and category = "coffee" ORDER BY ASC;
 * Test REPL for testing validity of EAQL queries
     * ![](./docs/images/screenshots/tester.png)
 
-#### Coming Soon:
+---
 
-* **Training REPL** – Interactive learning tool for beginners
+### EAQLDB (The Database)
+<!-- 
+A lightweight, in-memory database that runs EAQL directly, no SQL backend required. Perfect for zero-setup experimentation and rapid prototyping. -->
 
 <p align="center"><img src="docs/images/utils/under_construction.png"/></p>
 
 ---
 
-### ~~EAQL-DB (The Database)~~
+## Documentation
 
-~~A lightweight, in-memory database that runs EAQL directly, no SQL backend required. Perfect for zero-setup experimentation and rapid prototyping.~~
+Because this project is heavily learning-oriented, for myself and others, rather than being a production tool, we will be focused on a lot of in depth documentation about the core architecture behind how the language and the associated database will work. As such, the organized documentation can be found by visiting [the documentation page](./docs/DOCUMENTATION.md).
 
-<p align="center"><img src="docs/images/utils/under_construction.png"/></p>
-
----
+For people wishing to learn how to make a programming language, database, or just curious about the inner workings of this project you can review the "Architecture" section of the documentation. If you wish to learn how to actually use EAQL as a whole please visit the "Usage" section of the documentation.
 
 ## Why EAQL?
 

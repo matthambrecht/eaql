@@ -1,12 +1,10 @@
-# eaql - Parser
-## Basic Concept
-All queries start as a query node which can be branched off into 3 different actions based on the first keyword (table searching, table mutation, database modification).
+# Conditional Parsing
+## Preface
+Since we use recursive descent for parsing it's not easy to assert precendence in conditionals and if we followed the structure we use most other places we'd end up having to evaluate expressions left-to-right which would end up being problematic for expressions like `a or b and c` which would be treated as `(a or b) and c` which is not correct. To combat this a lot of languages use the [shunting yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm) to first convert expressions into reverse polish notation, which makes left-to-right parsing feasible.
 
-## Table Searching
-Table searches are parsed into 4 subnodes. The table to be searched, the columns in that table, a filter which uses optional [conditional parsing](#conditional-parsing) to narrow down queries, and a post processor to do things like limit the number of results retrieved. The table and column parsing are pretty self explanatory.
+To challenge myself I decided to figure out my own algorithm to do the exact same thing but in one pass. This led to a ton of trial-and-error, and countless failed attempts, tons of drawing parse trees, and a lot of hours. In the end I was able to figure it out, I'm pretty happy with my final result which ended up with the following rules and resulted with an `O(n)` time and space algorithm that parses to a tree capable of postorder traversal evaluation.
 
-### Conditional Parsing
-#### Rules
+## Rules
 - Start with an "OR" node at the beginning always
 - When you get a literal token evaluate it to its base expression and that evaluated expression will go on the left side of an "AND" node. Where that "AND" node goes is your next location as determined by future rules.
 - If you run across an "and" keyword, go to the next available location and add an "AND" node:
@@ -48,7 +46,7 @@ Table searches are parsed into 4 subnodes. The table to be searched, the columns
 (EXPR)    Unvisited                    (EXPR)    True
 ```
 
-#### Conditional Parsing Rules as Pseudocode
+## Conditional Parsing Rules as Pseudocode
 ```python
 # "and" keyword requires us to open an and node and continue parsing from
 # there
@@ -195,9 +193,3 @@ def parse_conditional():
         _rs: recurse_down()
     }
 ```
-
-## Table Mutation
-![](../images/utils/under_construction.png)
-
-## Database Modification
-![](../images/utils/under_construction.png)
