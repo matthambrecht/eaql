@@ -22,7 +22,7 @@ becomes
                                   columns: []
 ```
 
-A lot of parsing ends up being relatively simple and repetative at some times but there are some complex problems that we'll go over. Our AST ends up being defined by our grammar which can be found [here](./EAQL.ebnf). Essentially what we want when defining our grammar is ensure that every state our language defines all possible following states we wish to support. This makes it such that when we arrive at any token, we can always assert exactly what we "expect" to see next, and if we don't see what we expect, we can easily tell the user exactly where or why something is wrong.
+A lot of parsing ends up being relatively simple and repetative at some times but there are some complex problems that we'll go over. Our AST ends up being defined by our grammar which can be found [here](./EAQL.ebnf). Essentially what we want when defining our grammar is to ensure that for every state, our language defines all possible following states we wish to support. This makes it such that when we arrive at any token, we can always assert exactly what we "expect" to see next, and if we don't see what we expect, we can easily tell the user exactly where or why something is wrong.
 
 Lets revisit our example query tokenized:
 
@@ -58,7 +58,7 @@ Tokens: [
 
 What our parser will do is go through our entire token list in order. As previously mentioned, all queries start with a query node, this'll just allow us to chain queries together. We get to our first token, a "Get" token. This indicates that our QueryNode will need to point to a `GetNode` because out of the predefined states for a `QueryNode` (table accessing, table mutation, and database mutation), that is the one that matches our current state. We can then move forward a token. Our `GetNode` asserts that we only have 4 possible next states, two are required (choosing a table, and choosing a column or columns), and two are optional (filtering and post-processing). We also assert that the first thing that must be done is selecting a column, columns, or all data. This means that our current state must either be a WildcardKeyword, or an Identifier, otherwise it's an invalid state.
 
-If we get a wildcard token we know our `ColumnNode` is done and can move on, otherwise we may want to check to see if the identifier is in a list form (\<Identifer> \<And> \<Identifier>) and extract all identifiers from that list. This is a relatively self-explanatory process and all you need to know is that by the end of the process our current token pointer must end after all of the content of the `ColumnNode` (\<Get> \<WildcardKeyword> <u>\<From></u> \<Identifier> \<EoqToken>).
+If we get a wildcard token we know our `ColumnNode` is done and can move on, otherwise we may want to check to see if the identifier is in a list form (\<Identifer> \<And> \<Identifier>) and extract all identifiers from that list. This is a relatively self-explanatory process and all you need to know is that by the end of the process our current token pointer must end after all of the content of the `ColumnNode` (\<Get> \<WildcardKeyword> (\<From>) \<Identifier> \<EoqToken>).
 
 We can then move to our next state which we've defined must be the selection of a target table. We can ensure we're in this state by defining that we must see a "From" keyword and that our next token must be an "Identifier". The table name of our `TableNode` becomes the "literal" of our "Identifier".
 

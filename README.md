@@ -55,7 +55,7 @@ A lightweight, in-memory database that runs EAQL directly, no SQL backend requir
 
 ## Documentation
 
-Because this project is heavily learning-oriented, for myself and others, rather than being a production tool, we will be focused on a lot of in depth documentation about the core architecture behind how the language and the associated database will work. As such, the organized documentation can be found by visiting [the documentation page](./docs/DOCUMENTATION.md).
+Because this project is heavily learning-oriented, for myself and others, rather than being a production tool, we will be focused on a lot of in-depth documentation about the core architecture behind how the language and the associated database will work. As such, the organized documentation can be found by visiting [the documentation page](./docs/DOCUMENTATION.md).
 
 For people wishing to learn how to make a programming language, database, or just curious about the inner workings of this project you can review the "Architecture" section of the documentation. If you wish to learn how to actually use EAQL as a whole please visit the "Usage" section of the documentation.
 
@@ -68,6 +68,6 @@ This project demonstrates:
 * Compiler and transpiler architecture
 * Lightweight DB engine design
 
-It’s both a **learning tool for others** and a **personal deep dive** into compiler theory, operating systems, and database internals. With that being said, a lot of this is "learn as we go" so not every initial design choice will likely be optimal or even correct. I hope to continue iterating on this to keep learning and hopefully help others interested in creating a computer language, or database as a lot of my thoughts and realizations will be transferrable (i.e. lessons learned from [conditional-parsing](docs/eaql/PARSER.md/#conditional-parsing) is transferrable to calculator design and operational heirarchies).
+It’s both a **learning tool for others** and a **personal deep dive** into compiler theory, operating systems, and database internals. With that being said, a lot of this is "learn as we go" so not every initial design choice will likely be optimal or even correct. I hope to continue iterating on this to keep learning and hopefully help others interested in creating a computer language, or database as a lot of my thoughts and realizations will be transferrable (i.e. lessons learned from [conditional-parsing](docs/eaql/architecture/CONDITIONAL.md) is transferrable to calculator design and operational heirarchies).
 
 > ⚠️ *Note: EAQL and EAQL-DB are for educational purposes only. Not intended for production use.*

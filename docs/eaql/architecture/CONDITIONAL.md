@@ -2,7 +2,7 @@
 ## Preface
 Since we use recursive descent for parsing it's not easy to assert precendence in conditionals and if we followed the structure we use most other places we'd end up having to evaluate expressions left-to-right which would end up being problematic for expressions like `a or b and c` which would be treated as `(a or b) and c` which is not correct. To combat this a lot of languages use the [shunting yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm) to first convert expressions into reverse polish notation, which makes left-to-right parsing feasible.
 
-To challenge myself I decided to figure out my own algorithm to do the exact same thing but in one pass. This led to a ton of trial-and-error, and countless failed attempts, tons of drawing parse trees, and a lot of hours. In the end I was able to figure it out, I'm pretty happy with my final result which ended up with the following rules and resulted with an `O(n)` time and space algorithm that parses to a tree capable of postorder traversal evaluation.
+To challenge myself I decided to figure out my own algorithm to do the exact same thing but in one pass. This led to a ton of trial-and-error, and countless failed attempts, tons of drawing parse trees, and a lot of hours. In the end I was able to figure it out, and I'm pretty happy with my final result. I ended up with the following rules and resulted with an `O(n)` time and space algorithm that parses to a tree capable of postorder traversal evaluation.
 
 ## Rules
 - Start with an "OR" node at the beginning always

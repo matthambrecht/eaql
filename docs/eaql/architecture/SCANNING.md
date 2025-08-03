@@ -1,6 +1,6 @@
 # Scanning
 ## Preface
-Any programming language you come across starts with "scanning". The process of scanning involves taking user provided input (whether it be a code or query) and turning it into, and ensuring it can actually be turned into a format that the interpreter can actually understand.
+Any programming language you come across starts with "scanning". The process of scanning involves taking user provided input (whether it be a code or query), and ensuring it can actually be turned into a format that the interpreter can actually understand.
 
 ## How This Ties to EAQL
 In the case of EAQL, a user may provide a query like:
@@ -61,16 +61,16 @@ You may notice that each token is comprised of 3 different parts, this is what t
 
 ### How We Did It
 
-Lexing may seem super simple at first, particulary for English sentences, and you may think you can just split at the spaces and call it a day. The problem with this lies in the fact that something like "a>5" is equivalent to "a > 5". So we can't just do that. To combat this we can build somewhat of a trial and error process where we increase the length until we find something that is valid, then move forward and repeat until we have nothing left.
+Lexing may seem super simple at first, particulary for English sentences, and you may think you can just split at the spaces and call it a day. The problem with this lies in the fact that something like "a>5" is equivalent to "a > 5". So we can't just do that. To combat this we can build somewhat of a trial-and-error process where we increase the length until we find something that is valid, then move forward and repeat until we have nothing left.
 
 #### Single-Character Tokens
-We start with single character tokens: ">", "=", "(", etc. At any point we see these at the beginning of a new iteration of lexing we know we have a valid token. Some of these on their own may be a valid token, but what happens when we have ">=" and we just call it a day by making a "Greater Than" and an "Equal To" token. We end up modifying our lexical understanding, which is bad.
+We start with single character tokens: ">", "=", "(", etc. If at any point we see these at the beginning of a new iteration of lexing we know we have a valid token. Some of these on their own may be a valid token, but what happens when we have ">=" and we just call it a day by making a "Greater Than" and an "Equal To" token? We end up modifying our lexical understanding, which is bad.
 
 #### Double-Character Tokens
-To avoid this we define a second category of tokens. We'll call these our "two character tokens." If we see any of those one character tokens we first need to check if it's a token that could be followed by another token, if not, we just call this token exactly what it is, move forward to our next iteration. Otherwise, we want to look forward (peek) one character to confirm if it's a related token ahead of us. If it is we combine them into one token (<Gt> + <Eq> = <Gte>), otherwise we keep it as is, make it into a single character token, and move forward to our next iteration.
+To avoid this we define a second category of tokens. We'll call these our "two character tokens." If we see any of those one character tokens we first need to check if it's a token that could be followed by another token, if not, we just call this token exactly what it is, and move forward to our next iteration. Otherwise, we want to look forward (peek) one character to confirm if it's a related token ahead of us. If it is we combine them into one token (\<Gt> + \<Eq> = \<Gte>), otherwise we keep it as is, make it into a single character token, and move forward to our next iteration.
 
 #### Literals
-What happens now if we haven't found a valid single token to start with? We look for a literal. This is any string or number. This is actually the reason you don't see programming lanaguages that allow you to make variable names start with numbers. For EAQL we look for a quote to indicate a StringLiteral, and any valid number character to start a NumberLiteral ('-', or any number). Number parsing is a large can of worms with trial and error, there's a lot of resources online for this so I'll leave this to someone else to explain, but string parsing is fairly simple as we can just look for an end quote and whatever is between the two quotes is our literal.
+What happens now if we haven't found a valid single token to start with? We look for a literal. This is any string or number. This is actually the reason you don't see programming lanaguages that allow you to make variable names start with numbers. For EAQL we look for a quote to indicate a StringLiteral, and any valid number character to start a NumberLiteral ('-', or any number). Number parsing is a large can of worms with trial-and-error, there's a lot of resources online for this so I'll leave this to someone else to explain, but string parsing is fairly simple as we can just look for an end quote and whatever is between the two quotes is our literal.
 
 #### Identifiers and Keywords
 At this point if we haven't found a matching start character or a token, we can assume we either have an identifier, or a keyword. To do this we just keep moving forward until our current match either matches a keyword in our keyword store, or we see a valid start token (anything from the prior sections). If it's a keyword in our keyword store it becomes the keyword token mapped to that particular lexeme, keep in mind there may be multiple lexemes for one keyword, otherwise it becomes an identifier (variable name, column name, function name, etc). This is actually why in a language like Python you can overwrite "print" but you can't overwrite "if" by setting it equal to something else. "print" is an identifier for a function name while "if" is an internal keyword.
@@ -78,4 +78,4 @@ At this point if we haven't found a matching start character or a token, we can 
 ### What Next?
 To get a better understanding of our token typing you may want to take a look at our [Backus–Naur form](./EAQL.ebnf) definition of EAQL. This will define all tokens and the relations they have to eachother in a relatively easy to understand format. To learn more about and how to understand a grammar defined in "Backus-Naur form", visit [here](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form).
 
-Now that we know how we can turn a string of characters into a strong lexical representation, we need to figure out how to make use of that to give our computer a structural representation of the things those tokens indicated need to be done. This is where parsing comes in.
+Now that we know how we can turn a string of characters into a strong lexical representation, we need to figure out how to make use of that to give our computer a structural representation of the things those tokens indicated need to be done. This is where [parsing](./PARSING.md) comes in.
