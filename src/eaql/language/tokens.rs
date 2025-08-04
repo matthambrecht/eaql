@@ -17,6 +17,7 @@ pub enum TokenType {
     DeleteKeyword, CreateKeyword, SortHelper, SortType,
     WildcardKeyword, FilterKeyword, PostProcessorEntrance,
     Database, Get, From, And, Or, Order, Sort, Not, LimitKeyword,
+    UseKeyword, ShowKeyword,
 
     // Defaults
     UnknownToken, WhitespaceToken, NullToken
@@ -84,6 +85,12 @@ lazy_static! {
             ("make", TokenType::CreateKeyword),
             ("add", TokenType::CreateKeyword),
 
+            ("show", TokenType::ShowKeyword),
+            ("list", TokenType::ShowKeyword),
+
+            ("use", TokenType::UseKeyword),
+            ("enter", TokenType::UseKeyword),
+
             ("in", TokenType::SortHelper),
             ("by", TokenType::SortHelper),
 
@@ -105,6 +112,7 @@ lazy_static! {
             ("limit", TokenType::LimitKeyword),
 
             ("database", TokenType::Database),
+            ("databases", TokenType::Database),
 
             ("find", TokenType::Get),
             ("retrieve", TokenType::Get),

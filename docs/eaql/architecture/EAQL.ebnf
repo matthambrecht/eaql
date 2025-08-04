@@ -12,13 +12,19 @@
 
 
 ## Database Queries 
-### Mutation
-<DatabaseQuery> ::= <DatabaseCreateQuery> | <DatabaseDeleteQuery>
+### Interaction
+<DatabaseQuery> ::= <DatabaseCreateQuery> 
+                  | <DatabaseDeleteQuery>
+                  | <DatabaseShowQuery> 
+                  | <DatabaseUseQuery>
 <DatabaseDeleteQuery> ::= <DeleteKeyword> <Database> <Identifier>
 <DatabaseCreateQuery> ::= <CreateKeyword> <Database> <Identifier>
+<DatabaseUseQuery> ::= <UseKeyword> <Database> <Identifier>
+<DatabaseShowQuery> ::= <ShowKeyword> <Database> <Identifier>
 
 ## Table Queries
 <TableQuery> ::= <TableAccessorQuery>
+                 | <TableDeleteQuery>
 
 ### Accessing
 <TableAccessorQuery> ::= <Get> ( <MultiIdentifier> | <WildcardKeyword> ) <From> <Identifier> [ <FilterClause> ] [ <PostProcessorClause> ]
@@ -26,6 +32,9 @@
 <PostProcessorClause> ::= <PostProcessorEntrance> <PostProcessorAction>
 <PostProcessorAction> ::= <SortAction> { <And> <SortAction> }
 <SortAction> ::= <Sort> <SortHelper> <SortType> [ <Order> ]
+
+### Table Interaction
+<TableDeleteQuery> ::= <DeleteKeyword> <Table> <Identifier>
 
 ## Utilities
 ### Conditionals
@@ -60,12 +69,15 @@
 ### Keyword Tokens
 <DeleteKeyword> ::= "delete" | "remove"
 <CreateKeyword> ::= "create" | "make" | "add"
+<ShowKeyword> ::= "show" | "list"
+<UseKeyword> ::= "use" | "enter"
 <SortHelper> ::= "in" | "by"
 <SortType> ::= "ascending" | "descending"
 <WildcardKeyword> ::= "any" | "all" | "everything"
 <FilterKeyword> ::= "where" | "whenever"
 <PostProcessorEntrance> ::= "then" | "afterwords" | "after"
-<Database> ::= "database"
+<Database> ::= "database" | "databases"
+<Table> ::= "table" | "tables"
 <Get> ::= "get" | "retrieve" | "find"
 <From> ::= "from"
 <And> ::= "and"
