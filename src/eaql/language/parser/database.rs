@@ -263,7 +263,7 @@ make sure they're in a valid list notation.".to_string()
             databases: db_names,
             
             _literal: {
-                tokens[start_idx..*idx - 1].iter()
+                tokens[start_idx..*idx].iter()
                     .map(|v| v.lexeme.as_str())
                     .collect::<Vec<&str>>()
                     .join(" ")
