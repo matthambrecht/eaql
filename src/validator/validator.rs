@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-pub fn engine() {
+pub fn repl_loop() {
     loop {
         // Get input
         let query: String = io::query_stdin("validator");

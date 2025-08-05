@@ -31,8 +31,11 @@ pub struct PostProcessorNode {
     _depth: u16
 }
 
-impl LimitNode   {
-    pub fn parse_node(
+impl LimitNode {
+    /// Takes current node type and given the current location in the
+    /// query defined by the borrowed index, makes an attempt to parse
+    /// this node and associated subnodes for the Abstract Syntax Tree.
+    pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
         depth: u16
@@ -67,13 +70,23 @@ impl LimitNode   {
         });
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self
     ) -> (String, String) {
         (
             colorize(&self._literal, AnsiColor::Magenta),
             colorize(&format!("LIMIT {}", self.limit), AnsiColor::Magenta)
         )
+    }
+
+    /// Outputs current AST node transpiled to raw SQL.
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        format!("LIMIT {}", self.limit)
     }
 }
 
@@ -93,7 +106,7 @@ impl PostProcessorNode {
             TokenType::LimitKeyword => {
                 *idx += 1;
 
-                final_node.limit = match LimitNode::parse_node(tokens, idx, depth + 1) {
+                final_node.limit = match LimitNode::parse(tokens, idx, depth + 1) {
                     Ok(state) => Some(state),
                     Err(msg) => return Err(msg)
                 };
@@ -137,6 +150,9 @@ impl PostProcessorNode {
         }
     }
 
+    /// Takes current node type and given the current location in the
+    /// query defined by the borrowed index, makes an attempt to parse
+    /// this node and associated subnodes for the Abstract Syntax Tree.
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
@@ -164,7 +180,10 @@ impl PostProcessorNode {
         return Ok(Some(final_node));
     }
     
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self
     ) -> (String, String) {
         let mut final_lexeme: Vec<String> = vec![];
@@ -174,13 +193,31 @@ impl PostProcessorNode {
             let limit_transpiled: (String, String) = self.limit
             .as_ref()
             .unwrap()
-            .transpile();
+            .transpile_color();
 
             final_lexeme.push(limit_transpiled.0);
             final_transpiled.push(limit_transpiled.1);
         }
 
         (final_lexeme.join(" "), final_transpiled.join(" "))
+    }
+
+    /// outputs current ast node transpiled to raw sql.
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        let mut final_transpiled: Vec<String> = vec![];
+
+        if self.limit.is_some() {
+            let limit_transpiled: String = self.limit
+            .as_ref()
+            .unwrap()
+            .transpile_raw();
+
+            final_transpiled.push(limit_transpiled);
+        }
+
+        final_transpiled.join(" ")
     }
 }
 
