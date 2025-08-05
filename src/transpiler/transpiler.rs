@@ -1,20 +1,19 @@
 use crate::{
-    eaql::{
-        eaql::process_query,
-        language::parser::parser::Query,
-    }, utils::{
+    language::parser::parser::Query,
+    utils::{
         colors::{
             colorize,
             AnsiColor
         },
         io,
-        logger
+        logger,
+        query::process_query
     }
 };
 
-pub fn run() {
+pub fn engine() {
     loop {
-        let query: String = io::query_stdin();
+        let query: String = io::query_stdin("transpiler");
 
         let parsed: Query = match process_query(&query) {
             Some(state) => state,

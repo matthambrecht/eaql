@@ -1,11 +1,12 @@
-// This is the main interface to the interworkings of the EAQL language
-use crate::eaql::language::{
-    lexer::{self, Lexer},
-    parser::parser::{self, Query},
-    tokens::{self}
+use crate::{
+    language::{
+        lexer::{self, Lexer},
+        parser::parser::{self, Query},
+        tokens::{self}
+    },
+    utils::logger
 };
 
-use crate::utils::logger;
 
 // Process query to low level components (parsed)
 pub fn process_query(
