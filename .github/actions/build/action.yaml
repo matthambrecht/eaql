@@ -9,3 +9,4 @@ runs:
 
   - name: Build Library
     run: cargo build --verbose
+    shell: bash
