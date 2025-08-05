@@ -1,18 +1,8 @@
 name: "Build"
 description: "Builds the EAQL Library"
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-env:
-  CARGO_TERM_COLOR: always
-
 runs:
   using: "composite"
-  runs-on: ubuntu-latest
   steps:
   - name: Checkout Repository
     uses: actions/checkout@v4
