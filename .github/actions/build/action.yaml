@@ -1,0 +1,12 @@
+name: "Build"
+description: "Builds the EAQL Library"
+
+runs:
+  using: "composite"
+  steps:
+  - name: Checkout Repository
+    uses: actions/checkout@v4
+
+  - name: Build Library
+    run: cargo build --verbose
+    shell: bash

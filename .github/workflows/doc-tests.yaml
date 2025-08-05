@@ -11,12 +11,13 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: Run Composite Build Action
+      uses: ./.github/actions/build 
+    
+    - name: Run Document Tests
       run: cargo test --doc --verbose
