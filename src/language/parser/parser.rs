@@ -48,6 +48,9 @@ impl ImpliedAction {
 }
 
 impl Query {
+    /// Takes current node type and given the current location in the
+    /// query defined by the borrowed index, makes an attempt to parse
+    /// this node and associated subnodes for the Abstract Syntax Tree.
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
@@ -100,17 +103,33 @@ impl Query {
         return Err("Query failed all requirements! Please review documentation.".to_string());
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self
     ) -> (String, String) {
         if let Some(get) = &self._get {
-            return get.transpile();
+            return get.transpile_color();
         } else if let Some(database) = &self._database {
-            return database.transpile();
+            return database.transpile_color();
         } else {
             logger::error("A fatal error occurred while transpiling your query!");
         };
     }
+
+    /// Ouputs current AST node tranpile to raw SQL.
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        if let Some(get) = &self._get {
+            return get.transpile_raw();
+        } else if let Some(database) = &self._database {
+            return database.transpile_raw();
+        } else {
+            logger::error("A fatal error occurred while transpiling your query!");
+        };
+    }        
 }
 
 impl fmt::Display for Query {
@@ -130,6 +149,9 @@ impl fmt::Display for Query {
     }
 }
 
+/// Main parsing interface. Takes a vector of tokens
+/// produced by the Lexer class, and attempts to parse
+/// it into an Abstract Syntax Tree.
 pub fn parse(tokens: &Vec<Token>) -> Result<Query, String> {
     let mut idx: usize = 0;
 

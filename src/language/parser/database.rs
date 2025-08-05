@@ -146,7 +146,10 @@ impl DatabaseNode {
         return Ok(database_node);
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self,
     ) -> (String, String) {
         let pair: (String, (String, String)) = match (
@@ -155,10 +158,10 @@ impl DatabaseNode {
             &self._show,
             &self._use,
         ) {
-            (Some(op), _, _, _) => ("CREATE DATABASE ".to_string(), op.transpile()),
-            (_, Some(op), _, _) => ("DROP DATABASE ".to_string(), op.transpile()),
-            (_, _, Some(op), _) => ("SHOW DATABASE".to_string(), op.transpile()),
-            (_, _, _, Some(op)) => ("USE DATABASE ".to_string(), op.transpile()),
+            (Some(op), _, _, _) => ("CREATE DATABASE ".to_string(), op.transpile_color()),
+            (_, Some(op), _, _) => ("DROP DATABASE ".to_string(), op.transpile_color()),
+            (_, _, Some(op), _) => ("SHOW DATABASE".to_string(), op.transpile_color()),
+            (_, _, _, Some(op)) => ("USE DATABASE ".to_string(), op.transpile_color()),
             _ => logger::error("No database operation provided"),
         };
         
@@ -172,6 +175,24 @@ impl DatabaseNode {
                 &pair.1.1
             )
         )
+    }
+
+    /// Outputs current AST node transpile to raw SQL.
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        match (
+            &self._create,
+            &self._destroy,
+            &self._show,
+            &self._use,
+        ) {
+            (Some(op), _, _, _) => "CREATE DATABASE ".to_string() + &op.transpile_raw(),
+            (_, Some(op), _, _) => "DROP DATABASE ".to_string() + &op.transpile_raw(),
+            (_, _, Some(op), _) => "SHOW DATABASE".to_string() + &op.transpile_raw(),
+            (_, _, _, Some(op)) => "USE DATABASE ".to_string() + &op.transpile_raw(),
+            _ => logger::error("No database operation provided"),
+        }
     }
 }
 
@@ -198,13 +219,23 @@ impl CreateNode {
         })
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self 
     ) -> (String, String) {
         (
             colorize(&self._literal.as_str(), AnsiColor::Blue),
             colorize(&self.name.as_str(), AnsiColor::Blue),
         )
+    }
+
+    /// Outputs current AST node transpiled to raw SQL.
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        self.name.clone()
     }
 }
 
@@ -247,6 +278,9 @@ make sure they're in a valid list notation.".to_string()
         );
     }
 
+    /// Takes current node type and given the current location in the
+    /// query defined by the borrowed index, makes an attempt to parse
+    /// this node and associated subnodes for the Abstract Syntax Tree.
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
@@ -273,13 +307,23 @@ make sure they're in a valid list notation.".to_string()
         })
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self 
     ) -> (String, String) {
         (
             colorize(&self._literal.as_str(), AnsiColor::Blue),
             colorize( &self.databases.join(", "), AnsiColor::Blue),
         )
+    }
+
+    /// Outputs current AST node transpile to raw SQL.
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        self.databases.join(", ")
     }
 }
 
@@ -306,13 +350,23 @@ impl UseNode {
         })
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self 
     ) -> (String, String) {
         (
             colorize(&self._literal.as_str(), AnsiColor::Blue),
             colorize(&self.name.as_str(), AnsiColor::Blue),
         )
+    }
+
+    /// Outputs current AST node transpiled to raw SQL.
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        self.name.clone()
     }
 }
 
@@ -329,7 +383,10 @@ impl ShowNode {
         })
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self 
     ) -> (String, String) {
         (
@@ -337,7 +394,15 @@ impl ShowNode {
             "".to_string(),
         )
     }
+    
+    /// Outputs current AST node transpiled to raw SQL.
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        "".to_string()
+    }
 }
+
 // Display Functions
 impl fmt::Display for DatabaseNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

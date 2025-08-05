@@ -8,7 +8,7 @@
 
 <p align="center">
     <img href="https://github.com/matthambrecht/eaql/actions/workflows/unit-tests.yaml" src="https://github.com/matthambrecht/eaql/actions/workflows/unit-tests.yaml/badge.svg"/>
-    <!-- <img href="https://github.com/matthambrecht/eaql/actions/workflows/integration-tests.yaml" src="https://github.com/matthambrecht/eaql/actions/workflows/integration-tests.yaml/badge.svg"/> -->
+    <img href="https://github.com/matthambrecht/eaql/actions/workflows/doc-tests.yaml" src="https://github.com/matthambrecht/eaql/actions/workflows/doc-tests.yaml/badge.svg"/>
 </p>
 
 **EAQL (English Augmented Query Language)** is a simplified, English-like query language designed as natural-language alternative to SQL. It's built for learners, educators, and tinkerers.

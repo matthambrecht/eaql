@@ -116,17 +116,20 @@ impl GetNode {
         })
 }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self,
     ) -> (String, String) {
-        let columns: (String, String) = self._columns.transpile();
-        let table: (String, String) = self._table.transpile();
+        let columns: (String, String) = self._columns.transpile_color();
+        let table: (String, String) = self._table.transpile_color();
         let filter: Option<(String, String)> = match &self._filter {
-            Some(filter) => Some(filter.transpile()),
+            Some(filter) => Some(filter.transpile_color()),
             None => None
         };
         let postprocessor: Option<(String, String)> = match &self._postprocessor {
-            Some(postprocessor) => Some(postprocessor.transpile()),
+            Some(postprocessor) => Some(postprocessor.transpile_color()),
             None => None
         };
 
@@ -153,9 +156,39 @@ impl GetNode {
                 .join(" "),
         )
     }
+
+    /// Outputs current AST node transpiled to raw SQL
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        let columns: String = self._columns.transpile_raw();
+        let table: String = self._table.transpile_raw();
+        let filter: Option<String> = match &self._filter {
+            Some(filter) => Some(filter.transpile_raw()),
+            None => None
+        };
+        let postprocessor: Option<String> = match &self._postprocessor {
+            Some(postprocessor) => Some(postprocessor.transpile_raw()),
+            None => None
+        };
+
+        [
+            Some(columns),
+            Some(table),
+            filter.as_ref().map(|f| f.clone()),
+            postprocessor.as_ref().map(|f| f.clone()),
+        ]
+            .into_iter()
+            .flatten()
+            .collect::<Vec<String>>()
+            .join(" ")
+    }
 }
 
 impl TableNode {
+    /// Takes current node type and given the current location in the
+    /// query defined by the borrowed index, makes an attempt to parse
+    /// this node and associated subnodes for the Abstract Syntax Tree.
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
@@ -191,13 +224,23 @@ impl TableNode {
         });
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self
     ) -> (String, String) {
         (
             colorize(&self._literal, AnsiColor::Blue),
             colorize(&format!("FROM {}", self.table_name), AnsiColor::Blue)
         )
+    }
+
+    /// Outputs current AST node transpiled to raw SQL
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        format!("FROM {}", self.table_name)
     }
 }
 
@@ -236,6 +279,9 @@ make sure they're in a valid list notation.".to_string()
         );
     }
 
+    /// Takes current node type and given the current location in the
+    /// query defined by the borrowed index, makes an attempt to parse
+    /// this node and associated subnodes for the Abstract Syntax Tree.
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
@@ -280,7 +326,10 @@ make sure they're in a valid list notation.".to_string()
         });
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self
     ) -> (String, String) {
         let columns: String = if self.is_wildcard {
@@ -295,9 +344,25 @@ make sure they're in a valid list notation.".to_string()
             colorize(&format!("SELECT {}", columns), AnsiColor::Yellow)
         )
     }
+
+    /// Outputs current AST node transpiled to raw SQL
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        let columns: String = if self.is_wildcard {
+            "*".to_string()
+        } else {
+            self.column_names.join(", ")
+        };
+
+        format!("SELECT {}", columns)
+    }
 }
 
 impl FilterNode {
+    /// Takes current node type and given the current location in the
+    /// query defined by the borrowed index, makes an attempt to parse
+    /// this node and associated subnodes for the Abstract Syntax Tree.
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
@@ -336,13 +401,23 @@ impl FilterNode {
         return Ok(None);
     }
 
-    pub fn transpile(
+    /// Outputs current AST node transpiled with color         
+    /// and it's raw query counterpart. Output are used by
+    /// the Transpiler REPL.
+    pub fn transpile_color(
         &self
     ) -> (String, String) {
         (
             colorize(&self._literal, AnsiColor::Cyan),
-            colorize(&format!("WHERE {}", self.condition.transpile()), AnsiColor::Cyan)
+            colorize(&format!("WHERE {}", self.condition.transpile_color()), AnsiColor::Cyan)
         )
+    }
+    
+    /// Outputs current AST node transpiled to raw SQL
+    pub fn transpile_raw(
+        &self
+    ) -> String {
+        format!("WHERE {}", self.condition.transpile_raw())
     }
 }
 
