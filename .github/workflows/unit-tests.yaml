@@ -1,4 +1,4 @@
-name: Eaql-DB Unit Tests
+name: Eaql Unit Tests
 
 on:
   push:

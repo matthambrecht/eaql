@@ -3,20 +3,18 @@ use crate::{
     utils::{
         logger
     },
-    eaql::{
-        language::{
-            parser::{
-                helpers::{
-                    validate_length, get_tab
-                },
-                get::GetNode
+    language::{
+        parser::{
+            helpers::{
+                validate_length, get_tab
             },
-            tokens::{
-                Token, TokenType
-            },
-            parser::database::{
-                DatabaseNode
-            }
+            get::GetNode
+        },
+        tokens::{
+            Token, TokenType
+        },
+        parser::database::{
+            DatabaseNode
         }
     }
 };

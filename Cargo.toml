@@ -1,13 +1,20 @@
 [package]
-name = "eaql-db"
+name = "eaql"
 version = "0.0.1"
 authors = ["Matthew Hambrecht"]
 edition = "2024"
 readme = "README.md"
-description = "An English-like SQL transpiler and database."
-repository = "https://github.com/matthambrecht/eaql-db"
+description = "An English-like query language and SQL transpiler."
+repository = "https://github.com/matthambrecht/eaql"
 license = "GPL-3.0-or-later"
-categories = ["database", "eduactional"]
+categories = ["language", "transpiler", "eduactional"]
+
+[[bin]]
+name = "repl"
+path = "src/bin/repl.rs"
+
+[lib]
+name = "eaql"
 
 [dependencies]
 chrono = { version = "0.4", features = ["clock"] }

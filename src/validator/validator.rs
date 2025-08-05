@@ -4,17 +4,15 @@ use crate::{
         colors::{
             colorize,
             AnsiColor
-        }
+        },
+        query::process_query
     },
-    eaql::{
-        eaql::process_query
-    }
 };
 
-pub fn run() {
+pub fn engine() {
     loop {
         // Get input
-        let query: String = io::query_stdin();
+        let query: String = io::query_stdin("validator");
 
         match process_query(&query) {
             Some(_) => println!("{}", colorize("Valid query!", AnsiColor::BrightGreen)),

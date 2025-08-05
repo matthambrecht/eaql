@@ -1,14 +1,12 @@
 use std::{fmt, usize};
 use crate::{
-    eaql::{
-        language::{
-            parser::helpers::{
-                get_tab, peek_one, validate_length
-            },
-            tokens::{
-                Token, TokenType
-            }
+    language::{
+        parser::helpers::{
+            get_tab, peek_one, validate_length
         },
+        tokens::{
+            Token, TokenType
+        }
     },
     utils::{
         colors::{

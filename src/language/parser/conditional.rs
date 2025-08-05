@@ -1,13 +1,11 @@
 use std::fmt;
 use crate::{
-    eaql::{
-        language::{
-            parser::helpers::{
-                get_tab, valid_until_warning, validate_length
-            }, 
-            tokens::{
-                Token, TokenType
-            }
+    language::{
+        parser::helpers::{
+            get_tab, valid_until_warning, validate_length
+        }, 
+        tokens::{
+            Token, TokenType
         }
     },
     utils::logger

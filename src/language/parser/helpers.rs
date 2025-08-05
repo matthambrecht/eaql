@@ -1,4 +1,4 @@
-use crate::eaql::{
+use crate::{
     language::{
         tokens::{
             Token, TokenType

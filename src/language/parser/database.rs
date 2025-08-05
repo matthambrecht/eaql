@@ -7,7 +7,8 @@ Make the database db_name.
 
 
 use std::{fmt, usize};
-use crate::{eaql::language::{
+use crate::{
+    language::{
         parser::{
             helpers::{
                 get_tab, validate_length, peek_one
