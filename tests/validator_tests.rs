@@ -144,6 +144,7 @@ fn integration_test_table_accessor_error_filter() {
     // Test different bad conditionals
     assert_eq!(engine("get all from test_table where id = 3 or (price <= 2 and name is id)!"), false);
     assert_eq!(engine("get all from test_table where (price < 3 or name is \"test\" and (id = 3 or (value < 4 and time >= 5)))));"), false);
+    assert_eq!(engine("get all from test_table where price < 3 or name is \"test\" and (id = 3 or (value < 4 and time >= 5)))));"), false);
 }
 
 #[test]
