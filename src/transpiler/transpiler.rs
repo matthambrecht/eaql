@@ -1,14 +1,10 @@
 use crate::{
     language::parser::parser::Query,
     utils::{
-        colors::{
-            colorize,
-            AnsiColor
-        },
-        io,
-        logger,
-        query::process_query
-    }
+        colors::{AnsiColor, colorize},
+        io, logger,
+        query::process_query,
+    },
 };
 
 /// Starts a Transpiling loop that accepts queries from STDIN
@@ -22,23 +18,27 @@ pub fn repl_loop() {
             Some(state) => state,
             None => {
                 logger::warning("Invalid query, see above warnings for issues!");
-                continue
+                continue;
             }
         };
 
         let transpiled: (String, String) = parsed.transpile_color();
-        
+
         println!(
             "‣ {} {};",
-            colorize("Reduced Query:", AnsiColor::BrightBlack), transpiled.0); 
+            colorize("Reduced Query:", AnsiColor::BrightBlack),
+            transpiled.0
+        );
         println!(
             "‣ {} {};",
-            colorize("SQL Query:", AnsiColor::BrightBlack), transpiled.1); 
-    };
+            colorize("SQL Query:", AnsiColor::BrightBlack),
+            transpiled.1
+        );
+    }
 }
 
 /// Transpile Input Query (String) to SQL
-/// 
+///
 /// # Example
 /// ```
 /// use eaql::transpiler::engine;

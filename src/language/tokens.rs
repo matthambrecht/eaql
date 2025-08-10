@@ -1,26 +1,50 @@
-use std::{collections::HashMap, fmt};
 use lazy_static::lazy_static;
+use std::{collections::HashMap, fmt};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum TokenType {
     // Single Char Tokens
-    OpenParen, CloseParen, EoqToken,
+    OpenParen,
+    CloseParen,
+    EoqToken,
     Comma,
-    
+
     // One or Two Char Tokens
-    Gte, Lte, Equal, Lt, Gt,
+    Gte,
+    Lte,
+    Equal,
+    Lt,
+    Gt,
 
     // Literals
-    Identifier, StringLiteral, NumberLiteral,
+    Identifier,
+    StringLiteral,
+    NumberLiteral,
 
     // Keywords
-    DeleteKeyword, CreateKeyword, SortHelper, SortType,
-    WildcardKeyword, FilterKeyword, PostProcessorEntrance,
-    Database, Get, From, And, Or, Order, Sort, Not, LimitKeyword,
-    UseKeyword, ShowKeyword,
+    DeleteKeyword,
+    CreateKeyword,
+    SortHelper,
+    SortType,
+    WildcardKeyword,
+    FilterKeyword,
+    PostProcessorEntrance,
+    Database,
+    Get,
+    From,
+    And,
+    Or,
+    Order,
+    Sort,
+    Not,
+    LimitKeyword,
+    UseKeyword,
+    ShowKeyword,
 
     // Defaults
-    UnknownToken, WhitespaceToken, NullToken
+    UnknownToken,
+    WhitespaceToken,
+    NullToken,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -31,15 +55,11 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(
-        token_type: TokenType,
-        literal: &String,
-        lexeme: &String
-    ) -> Token {
+    pub fn new(token_type: TokenType, literal: &String, lexeme: &String) -> Token {
         Token {
             token_type: token_type,
             literal: literal.to_owned(),
-            lexeme: lexeme.to_owned()
+            lexeme: lexeme.to_owned(),
         }
     }
 }
@@ -49,21 +69,15 @@ impl fmt::Display for Token {
         write!(
             f,
             "Token {{ Type: {:#?}, Literal: {}, Lexeme: {} }}",
-            self.token_type, self.literal, self.lexeme)
+            self.token_type, self.literal, self.lexeme
+        )
     }
 }
 
-
 // These are for finding unique cases of tokens
-pub const SINGLE_START_TOKENS: &[char] = &[
-    '(', ')', '!', '.', ';', ','
-];
+pub const SINGLE_START_TOKENS: &[char] = &['(', ')', '!', '.', ';', ','];
 
-
-pub const SINGLE_DOUBLE_START_TOKENS: &[char] = &[
-    '<', '>', '='
-];
-
+pub const SINGLE_DOUBLE_START_TOKENS: &[char] = &['<', '>', '='];
 
 lazy_static! {
     pub static ref IDENTIFER_STOPS: Vec<char> = {

@@ -1,9 +1,6 @@
 // EAQL Logger - Will need to clean this up later
+use crate::utils::colors::{AnsiColor, colorize};
 use chrono::Local;
-use crate::utils::colors::{
-    AnsiColor,
-    colorize
-};
 
 // TODO: Move these to config?
 pub const TEST_MODE: bool = true;
@@ -27,7 +24,6 @@ fn send_msg(log_level: &str, msg: &str) -> String {
     format!("[{timestamp}][{prefix}] {msg}")
 }
 
-
 fn get_timestamp() -> String {
     return Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
 }
@@ -50,6 +46,6 @@ pub fn warning(msg: &str) -> () {
     }
 }
 
-pub fn error(msg: &str) -> ! {    
+pub fn error(msg: &str) -> ! {
     panic!("{}", send_msg("error", msg));
 }

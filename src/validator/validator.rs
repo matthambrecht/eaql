@@ -1,16 +1,11 @@
-use crate::{
-    utils::{
-        io,
-        colors::{
-            colorize,
-            AnsiColor
-        },
-        query::process_query
-    },
+use crate::utils::{
+    colors::{AnsiColor, colorize},
+    io,
+    query::process_query,
 };
 
 /// Starts a Validator loop that accepts queries from STDIN
-/// and validates queries while outputting error information 
+/// and validates queries while outputting error information
 pub fn repl_loop() {
     loop {
         // Get input
@@ -18,13 +13,19 @@ pub fn repl_loop() {
 
         match process_query(&query) {
             Some(_) => println!("{}", colorize("Valid query!", AnsiColor::BrightGreen)),
-            None => println!("{}", colorize("Invalid query, see above warnings for issues!", AnsiColor::BrightRed))
+            None => println!(
+                "{}",
+                colorize(
+                    "Invalid query, see above warnings for issues!",
+                    AnsiColor::BrightRed
+                )
+            ),
         };
     }
 }
 
 /// Validate Input Query (String)
-/// 
+///
 /// # Example
 /// ```
 /// use eaql::validator::engine;
@@ -35,6 +36,6 @@ pub fn repl_loop() {
 pub fn engine(query: &str) -> bool {
     match process_query(&query.to_string()) {
         Some(_) => true,
-        None => false
+        None => false,
     }
 }
