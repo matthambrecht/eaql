@@ -67,7 +67,7 @@
 <Gt> ::= ">"
 
 ### Keyword Tokens
-<DeleteKeyword> ::= "delete" | "remove"
+<DeleteKeyword> ::= "delete" | "remove" | "destroy"
 <CreateKeyword> ::= "create" | "make" | "add"
 <ShowKeyword> ::= "show" | "list"
 <UseKeyword> ::= "use" | "enter"

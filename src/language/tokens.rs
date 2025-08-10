@@ -80,6 +80,7 @@ lazy_static! {
         return HashMap::from([
             ("delete", TokenType::DeleteKeyword),
             ("remove", TokenType::DeleteKeyword),
+            ("destroy", TokenType::DeleteKeyword),
 
             ("create", TokenType::CreateKeyword),
             ("make", TokenType::CreateKeyword),
