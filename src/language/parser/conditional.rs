@@ -391,7 +391,6 @@ fn recurse_down(
     // unless our parent node is an OR, then we need to add
     // and OR node and begin parsing from there
     if *closing_paren {
-        *closing_paren = false;
         return Ok(handle_close(&parent_node, depth));
     } else if *closing_or {
         if parent_node == "OR" {
