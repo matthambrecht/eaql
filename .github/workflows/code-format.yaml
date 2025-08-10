@@ -1,0 +1,26 @@
+name: Linting Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Formatter
+      run: rustup component add rustfmt
+
+    - name: Run Composite Build Action
+      uses: ./.github/actions/build 
+
+    - name: Run Format Test
+      run: cargo fmt --all -- --check
