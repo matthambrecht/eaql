@@ -3,28 +3,28 @@ use eaql::validator::engine;
 // Database Query Tests (Validator)
 // Normal
 #[test]
-fn integration_test_db_create_normal() {
+fn validator_integration_test_db_create_normal() {
     // Create keyword tests
     assert_eq!(engine("create database test;"), true);
     assert_eq!(engine("make database test."), true);
 }
 
 #[test]
-fn integration_test_db_use_normal() {
+fn validator_integration_test_db_use_normal() {
     // Use keyword tests
     assert_eq!(engine("use database test;"), true);
     assert_eq!(engine("enter database test;"), true);
 }
 
 #[test]
-fn integration_test_db_show_normal() {
+fn validator_integration_test_db_show_normal() {
     // Show keyword tests
     assert_eq!(engine("show database;"), true);
     assert_eq!(engine("list databases."), true);
 }
 
 #[test]
-fn integration_test_db_destroy_normal() {
+fn validator_integration_test_db_destroy_normal() {
     // Destroy
     assert_eq!(engine("remove database db1!"), true);
     assert_eq!(engine("destroy database db1!"), true);
@@ -37,7 +37,7 @@ fn integration_test_db_destroy_normal() {
 
 // Error
 #[test]
-fn integration_test_db_create_error() {
+fn validator_integration_test_db_create_error() {
     // Generic Error Test
     assert_eq!(engine("create database test"), false);
     assert_eq!(engine("Create the test!"), false);
@@ -45,7 +45,7 @@ fn integration_test_db_create_error() {
 }
 
 #[test]
-fn integration_test_db_use_error() {
+fn validator_integration_test_db_use_error() {
     // Generic Error Test
     assert_eq!(engine("use database test"), false);
     assert_eq!(engine("Enter test!"), false);
@@ -53,7 +53,7 @@ fn integration_test_db_use_error() {
 }
 
 #[test]
-fn integration_test_db_show_error() {
+fn validator_integration_test_db_show_error() {
     // Generic Error Test
     assert_eq!(engine("show database"), false);
     assert_eq!(engine("show!"), false);
@@ -61,7 +61,7 @@ fn integration_test_db_show_error() {
 }
 
 #[test]
-fn integration_test_db_destroy_error() {
+fn validator_integration_test_db_destroy_error() {
     // Generic Error Test
     assert_eq!(engine("delete databases db1, db2, db3"), false);
     assert_eq!(engine("Delete db1!"), false);
@@ -72,7 +72,7 @@ fn integration_test_db_destroy_error() {
 // Table Accessor Query Tests (Validator)
 // Normal
 #[test]
-fn integration_test_table_accessor_normal_get() {
+fn validator_integration_test_table_accessor_normal_get() {
     // Test "wildcard" keywords
     assert_eq!(engine("get all from test_table;"), true);
     assert_eq!(engine("get any from test_table;"), true);
@@ -89,7 +89,7 @@ fn integration_test_table_accessor_normal_get() {
 }
 
 #[test]
-fn integration_test_table_accessor_normal_filter() {
+fn validator_integration_test_table_accessor_normal_filter() {
     // Test "filter entrance" keywords
     assert_eq!(engine("get all from test_table where id = 3;"), true);
     assert_eq!(engine("get all from test_table wherever id = 3;"), true);
@@ -103,7 +103,7 @@ fn integration_test_table_accessor_normal_filter() {
 
 
 #[test]
-fn integration_test_table_accessor_normal_postprocessor() {
+fn validator_integration_test_table_accessor_normal_postprocessor() {
     // Test "post-processor entrance" keywords
     assert_eq!(engine("get all from test_table then limit 5;"), true);
     assert_eq!(engine("get all from test_table afterwords limit 5;"), true);
@@ -115,7 +115,7 @@ fn integration_test_table_accessor_normal_postprocessor() {
 
 
 #[test]
-fn integration_test_table_accessor_normal_postprocessor_limit() {
+fn validator_integration_test_table_accessor_normal_postprocessor_limit() {
     // Test "post-processor limit" keywords
     assert_eq!(engine("get all from test_table then limit 5;"), true);
     assert_eq!(engine("get all from test_table then limit it to 5;"), true);
@@ -123,7 +123,7 @@ fn integration_test_table_accessor_normal_postprocessor_limit() {
 
 // Error
 #[test]
-fn integration_test_table_accessor_error_get() {
+fn validator_integration_test_table_accessor_error_get() {
     // Test improper tokens
     assert_eq!(engine("get all from \"test_table\";"), false);
     assert_eq!(engine("get all from test_table"), false);
@@ -135,7 +135,7 @@ fn integration_test_table_accessor_error_get() {
 }
 
 #[test]
-fn integration_test_table_accessor_error_filter() {
+fn validator_integration_test_table_accessor_error_filter() {
     // Test bad conditions
     assert_eq!(engine("get all from test_table where id = 3"), false);
     assert_eq!(engine("get all from test_table where id is equal to 3;"), false);
@@ -148,7 +148,7 @@ fn integration_test_table_accessor_error_filter() {
 }
 
 #[test]
-fn integration_test_table_accessor_error_postprocessor() {
+fn validator_integration_test_table_accessor_error_postprocessor() {
     // Generic tests
     assert_eq!(engine("get all from test_table then limit 5"), false);
 
@@ -160,7 +160,7 @@ fn integration_test_table_accessor_error_postprocessor() {
 }
 
 #[test]
-fn integration_test_table_accessor_error_postprocessor_limit() {
+fn validator_integration_test_table_accessor_error_postprocessor_limit() {
     // Test bad limit
     assert_eq!(engine("get all from test_table then limit = 5;"), false);
     assert_eq!(engine("get all from test_table then limit id;"), false);

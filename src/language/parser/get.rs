@@ -388,12 +388,7 @@ impl FilterNode {
                 Some(FilterNode {
                     condition: condition_node,
                     
-                    _literal: {
-                        tokens[start_idx..*idx].iter()
-                            .map(|v| v.lexeme.as_str())
-                            .collect::<Vec<&str>>()
-                            .join(" ")
-                        },
+                    _literal: tokens[start_idx].lexeme.clone(),
                     _depth: depth
             }));
         }
@@ -408,7 +403,7 @@ impl FilterNode {
         &self
     ) -> (String, String) {
         (
-            colorize(&self._literal, AnsiColor::Cyan),
+            colorize(&format!("{} {}", self._literal, self.condition.transpile_raw()), AnsiColor::Cyan),
             colorize(&format!("WHERE {}", self.condition.transpile_color()), AnsiColor::Cyan)
         )
     }

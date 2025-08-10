@@ -1,4 +1,5 @@
 use std::fmt;
+
 use crate::{
     language::{
         parser::helpers::{
@@ -435,6 +436,58 @@ fn recurse_down(
 }
 
 impl ConditionNode {
+    /// Reconstructs conditional literal from provided tokens
+    /// and bounds.
+    fn reconstruct_literal (
+        tokens: &Vec<Token>,
+        start_idx: usize,
+        end_idx: usize,
+    ) -> String {
+        // Reconstruct literal
+        let mut i: usize = start_idx;
+        let mut literal = String::new();
+
+        while i < end_idx {
+            match tokens[i].token_type {
+                TokenType::OpenParen | TokenType::CloseParen => {
+                    literal.push_str(&tokens[i].lexeme);
+                    i += 1;
+                }
+                TokenType::And | TokenType::Or => {
+                    literal.push_str(&format!(" {} ", &tokens[i].lexeme));
+                    i += 1;
+                }
+                TokenType::Identifier => {
+                    let mut j = i;
+                    let mut parts = Vec::new();
+
+                    while parts.len() < 3
+                    {
+                        parts.push(if tokens[j].token_type == TokenType::Equal {
+                            "=".to_string()
+                        } else {
+                            tokens[j].lexeme.clone()
+                        }
+                        );
+                        j += 1;
+                    }
+
+                    if !parts.is_empty() {
+                        literal.push_str(&parts.join(" "));
+                    }
+
+                    i = j;
+                }
+                _ => {
+                    literal.push_str(&tokens[i].lexeme);
+                    i += 1;
+                }
+            }
+        }
+
+        literal
+    }
+    
     /// Takes current node type and given the current location in the
     /// query defined by the borrowed index, makes an attempt to parse
     /// this node and associated subnodes for the Abstract Syntax Tree.
@@ -482,20 +535,12 @@ impl ConditionNode {
             return Err("Conditional had unclosed parentheses".to_string());
         }
 
+
         return Ok(
             ConditionNode {
                 _condition: ret,
                 _depth: depth,
-                _literal: {
-                    tokens[start_idx..*idx].iter()
-                        .map(|v| if v.token_type == TokenType::Equal {
-                            "="
-                        } else {
-                            v.lexeme.as_str()
-                        })
-                        .collect::<Vec<&str>>()
-                        .join(" ")
-                }
+                _literal: ConditionNode::reconstruct_literal(tokens, start_idx, *idx)
             }
         )
     }
