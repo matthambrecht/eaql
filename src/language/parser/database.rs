@@ -160,7 +160,7 @@ impl DatabaseNode {
         ) {
             (Some(op), _, _, _) => ("CREATE DATABASE ".to_string(), op.transpile_color()),
             (_, Some(op), _, _) => ("DROP DATABASE ".to_string(), op.transpile_color()),
-            (_, _, Some(op), _) => ("SHOW DATABASE".to_string(), op.transpile_color()),
+            (_, _, Some(op), _) => ("SHOW DATABASES".to_string(), op.transpile_color()),
             (_, _, _, Some(op)) => ("USE DATABASE ".to_string(), op.transpile_color()),
             _ => logger::error("No database operation provided"),
         };
@@ -189,7 +189,7 @@ impl DatabaseNode {
         ) {
             (Some(op), _, _, _) => "CREATE DATABASE ".to_string() + &op.transpile_raw(),
             (_, Some(op), _, _) => "DROP DATABASE ".to_string() + &op.transpile_raw(),
-            (_, _, Some(op), _) => "SHOW DATABASE".to_string() + &op.transpile_raw(),
+            (_, _, Some(op), _) => "SHOW DATABASES".to_string() + &op.transpile_raw(),
             (_, _, _, Some(op)) => "USE DATABASE ".to_string() + &op.transpile_raw(),
             _ => logger::error("No database operation provided"),
         }
