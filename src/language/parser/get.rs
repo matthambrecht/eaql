@@ -245,7 +245,7 @@ impl TableNode {
 }
 
 impl ColumnNode {
-    pub fn recurse_build(
+    fn recurse_build(
         tokens: &Vec<Token>,
         cols: &mut Vec<String>,
         idx: &mut usize,
@@ -277,6 +277,28 @@ impl ColumnNode {
         return Err("Something went wrong parsing column names, \
 make sure they're in a valid list notation.".to_string()
         );
+    }
+
+    /// Reconstructs original literal from list of tokens and
+    /// provided bounds.
+    fn reconstruct_literal(
+        tokens: &Vec<Token>,
+        start_idx: usize,
+        end_idx: usize
+    ) -> String {
+        let mut literal = String::new();
+
+        literal.push_str(&format!("{} ", &tokens[start_idx].lexeme).to_string());
+
+        for v in &tokens[start_idx + 1..end_idx] {
+            match v.token_type {
+                TokenType::Comma => literal.push_str(", "),
+                TokenType::And => literal.push_str(" and "),
+                _ => literal.push_str(&v.lexeme),
+            };
+        }
+
+        literal
     }
 
     /// Takes current node type and given the current location in the
@@ -316,12 +338,7 @@ make sure they're in a valid list notation.".to_string()
                 is_wildcard: false,
                 column_names: column_names,
 
-                _literal: {
-                    tokens[start_idx..*idx].iter()
-                        .map(|v| v.lexeme.as_str())
-                        .collect::<Vec<&str>>()
-                        .join(" ")
-                    },
+                _literal: ColumnNode::reconstruct_literal(tokens, start_idx, *idx),
                 _depth: depth
         });
     }
@@ -645,7 +662,7 @@ mod tests {
             ],
             is_wildcard: false,
 
-            _literal: "get id , cost and time".to_string(),
+            _literal: "get id, cost and time".to_string(),
             _depth: 0
         };
         let mut idx: usize = 1;
