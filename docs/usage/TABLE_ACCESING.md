@@ -18,8 +18,8 @@ Table accessing queries require 4 parts: target table, associated columns, filte
 - **Example**: `column_1, column_2 and column_3`
 
 ### Filters (Optional)
-- **Format**: This is just listed as a mathematical boolean expression. If you don't understand this concept please see this first: [logical expressions](https://runestone.academy/ns/books/published/thinkcspy/Selection/Logicaloperators.html).
-- **Example**: `cost < 15 and (expiration_year > 2026 or best_by_date_exists = False)`
+- **Format**: To indicate that you will be using a filter you will need to start the filters with a [filter entrance keyword](#filter-entrance-keywords). This is just listed as a mathematical boolean expression. If you don't understand this concept please see this first: [logical expressions](https://runestone.academy/ns/books/published/thinkcspy/Selection/Logicaloperators.html).
+- **Example**: `whenever cost < 15 and (expiration_year > 2026 or best_by_date_exists = False)`
 
 - [Logical Keywords](#logical-keywords)
 - [Logical Operators](#logical-operators)
@@ -44,7 +44,6 @@ Indicates that the current query is for data retrieval from a table.
 Indicates during retrieval which table we are getting data from.
 
 - From
-- In
 
 ### Wildcard Keywords
 Indicates during retrieval that we would like to get all columns from a specific table.
@@ -52,6 +51,13 @@ Indicates during retrieval that we would like to get all columns from a specific
 - All
 - Everything
 - Any
+
+### Filter Entrance Keywords
+Indicates that we would like to filter the query response using some conditional.
+
+- where
+- whenever
+- wherever
 
 ### Logical Keywords
 - And
@@ -63,6 +69,7 @@ Indicates during retrieval that we would like to get all columns from a specific
 - `< (Less Than)`
 - `<= (Less Than or Eaql to)`
 - `= (Equal to)`
+- `is (Equal to)`
 
 ### Post-Processor Entrances
 Indicates that we would like to modify the results of our retrieval in a certain way.

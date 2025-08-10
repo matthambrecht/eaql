@@ -74,7 +74,7 @@
 <SortHelper> ::= "in" | "by"
 <SortType> ::= "ascending" | "descending"
 <WildcardKeyword> ::= "any" | "all" | "everything"
-<FilterKeyword> ::= "where" | "whenever"
+<FilterKeyword> ::= "where" | "whenever" | "wherever"
 <PostProcessorEntrance> ::= "then" | "afterwords" | "after"
 <Database> ::= "database" | "databases"
 <Table> ::= "table" | "tables"
