@@ -1,4 +1,7 @@
-name: Document Tests
+name: Document
+
+permissions:
+  contents: read
 
 on:
   push:
@@ -10,7 +13,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository

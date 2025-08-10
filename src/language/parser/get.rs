@@ -1,23 +1,15 @@
-use std::{fmt, usize};
 use crate::{
     language::{
         parser::{
             conditional::ConditionNode,
-            helpers::{
-                get_tab, peek_one, validate_length
-            },
-            postprocessor::{
-                PostProcessorNode
-            },
-        }, tokens::{
-            Token, TokenType
-        }
+            helpers::{get_tab, peek_one, validate_length},
+            postprocessor::PostProcessorNode,
+        },
+        tokens::{Token, TokenType},
     },
-    utils::colors::{
-        colorize,
-        AnsiColor
-    }
+    utils::colors::{AnsiColor, colorize},
 };
+use std::{fmt, usize};
 
 #[derive(Debug)]
 pub struct GetNode {
@@ -26,7 +18,7 @@ pub struct GetNode {
     _filter: Option<FilterNode>,
     _postprocessor: Option<PostProcessorNode>,
 
-    _depth: u16
+    _depth: u16,
 }
 
 #[derive(Debug, PartialEq)]
@@ -34,8 +26,8 @@ pub struct TableNode {
     table_name: String,
 
     _literal: String,
-    _depth: u16
-}    
+    _depth: u16,
+}
 
 #[derive(Debug, PartialEq)]
 pub struct ColumnNode {
@@ -43,7 +35,7 @@ pub struct ColumnNode {
     is_wildcard: bool,
 
     _literal: String,
-    _depth: u16 
+    _depth: u16,
 }
 
 #[derive(Debug, PartialEq)]
@@ -51,86 +43,66 @@ pub struct FilterNode {
     condition: ConditionNode,
 
     _literal: String,
-    _depth: u16
+    _depth: u16,
 }
 
 impl GetNode {
-   pub fn parse(
-        tokens: &Vec<Token>,
-        idx: &mut usize,
-        depth: u16) -> Result<GetNode, String>{
-        validate_length(
-            tokens,
-            idx,
-            true)?;
+    pub fn parse(tokens: &Vec<Token>, idx: &mut usize, depth: u16) -> Result<GetNode, String> {
+        validate_length(tokens, idx, true)?;
 
-        let columns: ColumnNode = match ColumnNode::parse(
-            tokens,
-            idx,
-            depth + 1
-        ) {
+        let columns: ColumnNode = match ColumnNode::parse(tokens, idx, depth + 1) {
             Ok(column) => column,
-            Err(err) => return Err(err)
+            Err(err) => return Err(err),
         };
 
-        let table: TableNode = match TableNode::parse(
-            tokens,
-            idx,
-            depth + 1
-        ) {
+        let table: TableNode = match TableNode::parse(tokens, idx, depth + 1) {
             Ok(table) => table,
             Err(err) => return Err(err),
         };
 
-        let filter: Option<FilterNode> = match FilterNode::parse(
-            tokens,
-            idx,
-            depth + 1
-        ) {
+        let filter: Option<FilterNode> = match FilterNode::parse(tokens, idx, depth + 1) {
             Ok(filter) => filter,
             Err(err) => return Err(err),
         };
 
-        let postprocessor: Option<PostProcessorNode> = match PostProcessorNode::parse(
-            tokens,
-            idx,
-            depth + 1
-        ) {
-            Ok(postprocessor) => postprocessor,
-            Err(msg) => return Err(msg)
-        };
+        let postprocessor: Option<PostProcessorNode> =
+            match PostProcessorNode::parse(tokens, idx, depth + 1) {
+                Ok(postprocessor) => postprocessor,
+                Err(msg) => return Err(msg),
+            };
 
         validate_length(tokens, idx, true)?;
 
         if tokens[*idx].token_type != TokenType::EoqToken {
-            return Err(format!("Unexpected token '{}', expected end-of-query token by this point.", tokens[*idx].lexeme))
+            return Err(format!(
+                "Unexpected token '{}', expected end-of-query token by this point.",
+                tokens[*idx].lexeme
+            ));
         }
 
         Ok(GetNode {
             _table: table,
             _columns: columns,
             _filter: filter,
-            _postprocessor: postprocessor, 
+            _postprocessor: postprocessor,
 
-            _depth: depth
+            _depth: depth,
         })
-}
+    }
 
     /// Outputs current AST node transpiled with color         
     /// and it's raw query counterpart. Output are used by
     /// the Transpiler REPL.
-    pub fn transpile_color(
-        &self,
-    ) -> (String, String) {
+    pub fn transpile_color(&self) -> (String, String) {
         let columns: (String, String) = self._columns.transpile_color();
         let table: (String, String) = self._table.transpile_color();
         let filter: Option<(String, String)> = match &self._filter {
             Some(filter) => Some(filter.transpile_color()),
-            None => None
+            None => None,
         };
         let postprocessor: Option<(String, String)> = match &self._postprocessor {
             Some(postprocessor) => Some(postprocessor.transpile_color()),
-            None => None
+            None => None,
         };
 
         (
@@ -140,36 +112,34 @@ impl GetNode {
                 filter.as_ref().map(|f| f.0.clone()),
                 postprocessor.as_ref().map(|f| f.0.clone()),
             ]
-                .into_iter()
-                .flatten()
-                .collect::<Vec<String>>()
-                .join(" "),
+            .into_iter()
+            .flatten()
+            .collect::<Vec<String>>()
+            .join(" "),
             [
                 Some(columns.1),
                 Some(table.1),
                 filter.as_ref().map(|f| f.1.clone()),
                 postprocessor.as_ref().map(|f| f.1.clone()),
             ]
-                .into_iter()
-                .flatten()
-                .collect::<Vec<String>>()
-                .join(" "),
+            .into_iter()
+            .flatten()
+            .collect::<Vec<String>>()
+            .join(" "),
         )
     }
 
     /// Outputs current AST node transpiled to raw SQL
-    pub fn transpile_raw(
-        &self
-    ) -> String {
+    pub fn transpile_raw(&self) -> String {
         let columns: String = self._columns.transpile_raw();
         let table: String = self._table.transpile_raw();
         let filter: Option<String> = match &self._filter {
             Some(filter) => Some(filter.transpile_raw()),
-            None => None
+            None => None,
         };
         let postprocessor: Option<String> = match &self._postprocessor {
             Some(postprocessor) => Some(postprocessor.transpile_raw()),
-            None => None
+            None => None,
         };
 
         [
@@ -178,10 +148,10 @@ impl GetNode {
             filter.as_ref().map(|f| f.clone()),
             postprocessor.as_ref().map(|f| f.clone()),
         ]
-            .into_iter()
-            .flatten()
-            .collect::<Vec<String>>()
-            .join(" ")
+        .into_iter()
+        .flatten()
+        .collect::<Vec<String>>()
+        .join(" ")
     }
 }
 
@@ -189,15 +159,12 @@ impl TableNode {
     /// Takes current node type and given the current location in the
     /// query defined by the borrowed index, makes an attempt to parse
     /// this node and associated subnodes for the Abstract Syntax Tree.
-    pub fn parse(
-        tokens: &Vec<Token>,
-        idx: &mut usize,
-        depth: u16
-    ) -> Result<TableNode, String> {
+    pub fn parse(tokens: &Vec<Token>, idx: &mut usize, depth: u16) -> Result<TableNode, String> {
         let start_idx: usize = *idx;
 
-        if tokens[*idx].token_type == TokenType::From &&
-        peek_one(tokens, idx) == TokenType::Identifier {
+        if tokens[*idx].token_type == TokenType::From
+            && peek_one(tokens, idx) == TokenType::Identifier
+        {
             *idx += 1;
         } else {
             return Err(format!(
@@ -208,87 +175,90 @@ impl TableNode {
 
         *idx += 1;
 
-        return Ok(
-            TableNode {
-                table_name: tokens[*idx - 1].literal.clone(),
+        return Ok(TableNode {
+            table_name: tokens[*idx - 1].literal.clone(),
 
-                _literal: {
-                    tokens[start_idx..*idx].iter()
-                        .map(|v| v.lexeme.as_str())
-                        .collect::<Vec<&str>>()
-                        .join(" ")
-                        },
+            _literal: {
+                tokens[start_idx..*idx]
+                    .iter()
+                    .map(|v| v.lexeme.as_str())
+                    .collect::<Vec<&str>>()
+                    .join(" ")
+            },
 
-
-                _depth: depth
+            _depth: depth,
         });
     }
 
     /// Outputs current AST node transpiled with color         
     /// and it's raw query counterpart. Output are used by
     /// the Transpiler REPL.
-    pub fn transpile_color(
-        &self
-    ) -> (String, String) {
+    pub fn transpile_color(&self) -> (String, String) {
         (
             colorize(&self._literal, AnsiColor::Blue),
-            colorize(&format!("FROM {}", self.table_name), AnsiColor::Blue)
+            colorize(&format!("FROM {}", self.table_name), AnsiColor::Blue),
         )
     }
 
     /// Outputs current AST node transpiled to raw SQL
-    pub fn transpile_raw(
-        &self
-    ) -> String {
+    pub fn transpile_raw(&self) -> String {
         format!("FROM {}", self.table_name)
     }
 }
 
 impl ColumnNode {
-    pub fn recurse_build(
+    fn recurse_build(
         tokens: &Vec<Token>,
         cols: &mut Vec<String>,
         idx: &mut usize,
     ) -> Result<(), String> {
         let next_token: TokenType = peek_one(tokens, &idx);
-        if next_token != TokenType::And && 
-        next_token != TokenType::Comma {
+        if next_token != TokenType::And && next_token != TokenType::Comma {
             if tokens[*idx].token_type == TokenType::Identifier {
                 cols.push(tokens[*idx].literal.clone());
                 *idx += 1;
                 return Ok(());
             }
-        } else if next_token == TokenType::And || 
-        next_token == TokenType::Comma {
+        } else if next_token == TokenType::And || next_token == TokenType::Comma {
             if tokens[*idx].token_type == TokenType::Identifier {
                 cols.push(tokens[*idx].literal.clone());
                 *idx += 2;
-                
-                ColumnNode::recurse_build(
-                    tokens,
-                    cols,
-                    idx
-                )?;
+
+                ColumnNode::recurse_build(tokens, cols, idx)?;
 
                 return Ok(());
             }
         }
-        
+
         return Err("Something went wrong parsing column names, \
-make sure they're in a valid list notation.".to_string()
-        );
+make sure they're in a valid list notation."
+            .to_string());
+    }
+
+    /// Reconstructs original literal from list of tokens and
+    /// provided bounds.
+    fn reconstruct_literal(tokens: &Vec<Token>, start_idx: usize, end_idx: usize) -> String {
+        let mut literal = String::new();
+
+        literal.push_str(&format!("{} ", &tokens[start_idx].lexeme).to_string());
+
+        for v in &tokens[start_idx + 1..end_idx] {
+            match v.token_type {
+                TokenType::Comma => literal.push_str(", "),
+                TokenType::And => literal.push_str(" and "),
+                _ => literal.push_str(&v.lexeme),
+            };
+        }
+
+        literal
     }
 
     /// Takes current node type and given the current location in the
     /// query defined by the borrowed index, makes an attempt to parse
     /// this node and associated subnodes for the Abstract Syntax Tree.
-    pub fn parse(
-        tokens: &Vec<Token>,
-        idx: &mut usize,
-        depth: u16
-    ) -> Result<ColumnNode, String> {
+    pub fn parse(tokens: &Vec<Token>, idx: &mut usize, depth: u16) -> Result<ColumnNode, String> {
         // We subtract 1 from this because Get keyword has been processed already
-        let start_idx: usize = *idx - 1; 
+        let start_idx: usize = *idx - 1;
 
         if tokens[*idx].token_type == TokenType::WildcardKeyword {
             *idx += 1;
@@ -298,57 +268,47 @@ make sure they're in a valid list notation.".to_string()
                 column_names: vec![],
 
                 _literal: {
-                    tokens[start_idx..*idx].iter()
+                    tokens[start_idx..*idx]
+                        .iter()
                         .map(|v| v.lexeme.as_str())
                         .collect::<Vec<&str>>()
                         .join(" ")
-                        },
-                _depth: depth
+                },
+                _depth: depth,
             });
         }
 
         let mut column_names: Vec<String> = vec![];
-        
+
         ColumnNode::recurse_build(tokens, &mut column_names, idx)?;
 
-        return Ok(
-            ColumnNode {
-                is_wildcard: false,
-                column_names: column_names,
+        return Ok(ColumnNode {
+            is_wildcard: false,
+            column_names: column_names,
 
-                _literal: {
-                    tokens[start_idx..*idx].iter()
-                        .map(|v| v.lexeme.as_str())
-                        .collect::<Vec<&str>>()
-                        .join(" ")
-                    },
-                _depth: depth
+            _literal: ColumnNode::reconstruct_literal(tokens, start_idx, *idx),
+            _depth: depth,
         });
     }
 
     /// Outputs current AST node transpiled with color         
     /// and it's raw query counterpart. Output are used by
     /// the Transpiler REPL.
-    pub fn transpile_color(
-        &self
-    ) -> (String, String) {
+    pub fn transpile_color(&self) -> (String, String) {
         let columns: String = if self.is_wildcard {
             "*".to_string()
         } else {
             self.column_names.join(", ")
         };
 
-
         (
             colorize(&self._literal, AnsiColor::Yellow),
-            colorize(&format!("SELECT {}", columns), AnsiColor::Yellow)
+            colorize(&format!("SELECT {}", columns), AnsiColor::Yellow),
         )
     }
 
     /// Outputs current AST node transpiled to raw SQL
-    pub fn transpile_raw(
-        &self
-    ) -> String {
+    pub fn transpile_raw(&self) -> String {
         let columns: String = if self.is_wildcard {
             "*".to_string()
         } else {
@@ -366,35 +326,24 @@ impl FilterNode {
     pub fn parse(
         tokens: &Vec<Token>,
         idx: &mut usize,
-        depth: u16) -> Result<Option<FilterNode>, String> {
-
+        depth: u16,
+    ) -> Result<Option<FilterNode>, String> {
         if tokens[*idx].token_type == TokenType::FilterKeyword {
             let start_idx: usize = *idx;
             *idx += 1;
 
-            let condition_node: ConditionNode = match ConditionNode::parse(
-                tokens,
-                idx,
-                depth + 1) {
-                    Ok(condition) => {
-                        condition
-                    },
-                    Err(err) => {
-                        return Err(err);
-                    }
+            let condition_node: ConditionNode = match ConditionNode::parse(tokens, idx, depth + 1) {
+                Ok(condition) => condition,
+                Err(err) => {
+                    return Err(err);
+                }
             };
 
-            return Ok(
-                Some(FilterNode {
-                    condition: condition_node,
-                    
-                    _literal: {
-                        tokens[start_idx..*idx].iter()
-                            .map(|v| v.lexeme.as_str())
-                            .collect::<Vec<&str>>()
-                            .join(" ")
-                        },
-                    _depth: depth
+            return Ok(Some(FilterNode {
+                condition: condition_node,
+
+                _literal: tokens[start_idx].lexeme.clone(),
+                _depth: depth,
             }));
         }
 
@@ -404,19 +353,21 @@ impl FilterNode {
     /// Outputs current AST node transpiled with color         
     /// and it's raw query counterpart. Output are used by
     /// the Transpiler REPL.
-    pub fn transpile_color(
-        &self
-    ) -> (String, String) {
+    pub fn transpile_color(&self) -> (String, String) {
         (
-            colorize(&self._literal, AnsiColor::Cyan),
-            colorize(&format!("WHERE {}", self.condition.transpile_color()), AnsiColor::Cyan)
+            colorize(
+                &format!("{} {}", self._literal, self.condition.transpile_raw()),
+                AnsiColor::Cyan,
+            ),
+            colorize(
+                &format!("WHERE {}", self.condition.transpile_color()),
+                AnsiColor::Cyan,
+            ),
         )
     }
-    
+
     /// Outputs current AST node transpiled to raw SQL
-    pub fn transpile_raw(
-        &self
-    ) -> String {
+    pub fn transpile_raw(&self) -> String {
         format!("WHERE {}", self.condition.transpile_raw())
     }
 }
@@ -426,26 +377,30 @@ impl fmt::Display for GetNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-"\n{}(GetNode){}{}{}{}",
+            "\n{}(GetNode){}{}{}{}",
             get_tab(self._depth),
             self._columns,
             self._table,
             self._filter
                 .as_ref()
                 .map(|v| v as &dyn fmt::Display)
-                .unwrap_or(&format!("
+                .unwrap_or(&format!(
+                    "
 {}(FilterNode)
 {}N/A",
-                get_tab(self._depth + 1),
-                get_tab(self._depth + 2))),
+                    get_tab(self._depth + 1),
+                    get_tab(self._depth + 2)
+                )),
             self._postprocessor
                 .as_ref()
                 .map(|v| v as &dyn fmt::Display)
-                .unwrap_or(&format!("
+                .unwrap_or(&format!(
+                    "
 {}(PostProcessorNode)
 {}N/A",
-                get_tab(self._depth + 1),
-                get_tab(self._depth + 2)))
+                    get_tab(self._depth + 1),
+                    get_tab(self._depth + 2)
+                ))
         )
     }
 }
@@ -454,7 +409,7 @@ impl fmt::Display for FilterNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-"\n{}(FilterNode){}",
+            "\n{}(FilterNode){}",
             get_tab(self._depth),
             self.condition
         )
@@ -465,7 +420,7 @@ impl fmt::Display for TableNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-"\n{}(TableNode)
+            "\n{}(TableNode)
 {}table_name: {:?}",
             get_tab(self._depth),
             get_tab(self._depth + 1),
@@ -478,7 +433,7 @@ impl fmt::Display for ColumnNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-"\n{}(ColumnNode)
+            "\n{}(ColumnNode)
 {}is_wildcard: {:?}
 {}column_names: {:?}",
             get_tab(self._depth),
@@ -498,53 +453,34 @@ mod tests {
     #[test]
     fn unit_test_column_parsing_error() {
         let input: Vec<Token> = vec![
-            Token::new(
-                TokenType::Get,
-                &"get".to_string(),
-                &"get".to_string(),
-            ),
-            Token::new(
-                TokenType::Identifier,
-                &"id".to_string(),
-                &"id".to_string(),
-            ),
-            Token::new(
-                TokenType::Comma,
-                &"".to_string(),
-                &",".to_string(),
-            ),
-            Token::new(
-                TokenType::And,
-                &"".to_string(),
-                &"and".to_string(),
-            ),
+            Token::new(TokenType::Get, &"get".to_string(), &"get".to_string()),
+            Token::new(TokenType::Identifier, &"id".to_string(), &"id".to_string()),
+            Token::new(TokenType::Comma, &"".to_string(), &",".to_string()),
+            Token::new(TokenType::And, &"".to_string(), &"and".to_string()),
             Token::new(
                 TokenType::Identifier,
                 &"time".to_string(),
-                &"time".to_string()
-            )
+                &"time".to_string(),
+            ),
         ];
 
         let mut idx: usize = 1;
         let depth: u16 = 0;
-        
-        match ColumnNode::parse(
-            &input,
-            &mut idx,
-            depth) {
-                Ok(val) => assert!(false, "Output was expected to error but returned -> {}", val),
-                Err(err) => assert!(true, "Output errored out -> {}", err)
+
+        match ColumnNode::parse(&input, &mut idx, depth) {
+            Ok(val) => assert!(
+                false,
+                "Output was expected to error but returned -> {}",
+                val
+            ),
+            Err(err) => assert!(true, "Output errored out -> {}", err),
         }
     }
- 
+
     #[test]
     fn unit_test_column_parsing_normal_wildcard() {
         let input: Vec<Token> = vec![
-            Token::new(
-                TokenType::Get,
-                &"get".to_string(),
-                &"get".to_string(),
-            ),
+            Token::new(TokenType::Get, &"get".to_string(), &"get".to_string()),
             Token::new(
                 TokenType::WildcardKeyword,
                 &"".to_string(),
@@ -557,144 +493,100 @@ mod tests {
             is_wildcard: true,
 
             _literal: "get all".to_string(),
-            _depth: 0
+            _depth: 0,
         };
         let mut idx: usize = 1;
         let depth: u16 = 0;
-        
-        match ColumnNode::parse(
-            &input,
-            &mut idx,
-            depth) {
-                Ok(val) => assert_eq!(expected, val),
-                Err(err) => assert!(false, "Output errored out -> {}", err)
-            }
+
+        match ColumnNode::parse(&input, &mut idx, depth) {
+            Ok(val) => assert_eq!(expected, val),
+            Err(err) => assert!(false, "Output errored out -> {}", err),
+        }
     }
 
     #[test]
     fn unit_test_column_parsing_normal_single() {
         let input: Vec<Token> = vec![
-            Token::new(
-                TokenType::Get,
-                &"get".to_string(),
-                &"get".to_string(),
-            ),
-            Token::new(
-                TokenType::Identifier,
-                &"id".to_string(),
-                &"id".to_string(),
-            ),
+            Token::new(TokenType::Get, &"get".to_string(), &"get".to_string()),
+            Token::new(TokenType::Identifier, &"id".to_string(), &"id".to_string()),
         ];
 
         let expected: ColumnNode = ColumnNode {
-            column_names: vec![
-                "id".to_string(),
-            ],
+            column_names: vec!["id".to_string()],
             is_wildcard: false,
 
             _literal: "get id".to_string(),
-            _depth: 0
+            _depth: 0,
         };
         let mut idx: usize = 1;
         let depth: u16 = 0;
-        
-        match ColumnNode::parse(
-            &input,
-            &mut idx,
-            depth) {
-                Ok(val) => assert_eq!(expected, val),
-                Err(err) => assert!(false, "Output errored out -> {}", err)
-            }
+
+        match ColumnNode::parse(&input, &mut idx, depth) {
+            Ok(val) => assert_eq!(expected, val),
+            Err(err) => assert!(false, "Output errored out -> {}", err),
+        }
     }
 
     #[test]
     fn unit_test_column_parsing_normal_multiple() {
         let input: Vec<Token> = vec![
-            Token::new(
-                TokenType::Get,
-                &"get".to_string(),
-                &"get".to_string(),
-            ),
-            Token::new(
-                TokenType::Identifier,
-                &"id".to_string(),
-                &"id".to_string(),
-            ),
-            Token::new(
-                TokenType::Comma,
-                &"".to_string(),
-                &",".to_string(),
-            ),
+            Token::new(TokenType::Get, &"get".to_string(), &"get".to_string()),
+            Token::new(TokenType::Identifier, &"id".to_string(), &"id".to_string()),
+            Token::new(TokenType::Comma, &"".to_string(), &",".to_string()),
             Token::new(
                 TokenType::Identifier,
                 &"cost".to_string(),
                 &"cost".to_string(),
             ),
-            Token::new(
-                TokenType::And,
-                &"".to_string(),
-                &"and".to_string(),
-            ),
+            Token::new(TokenType::And, &"".to_string(), &"and".to_string()),
             Token::new(
                 TokenType::Identifier,
                 &"time".to_string(),
-                &"time".to_string()
-            )
+                &"time".to_string(),
+            ),
         ];
 
         let expected: ColumnNode = ColumnNode {
-            column_names: vec![
-                "id".to_string(),
-                "cost".to_string(),
-                "time".to_string()
-            ],
+            column_names: vec!["id".to_string(), "cost".to_string(), "time".to_string()],
             is_wildcard: false,
 
-            _literal: "get id , cost and time".to_string(),
-            _depth: 0
+            _literal: "get id, cost and time".to_string(),
+            _depth: 0,
         };
         let mut idx: usize = 1;
         let depth: u16 = 0;
-        
-        match ColumnNode::parse(
-            &input,
-            &mut idx,
-            depth) {
-                Ok(val) => assert_eq!(expected, val),
-                Err(err) => assert!(false, "Output errored out -> {}", err)
-            }
+
+        match ColumnNode::parse(&input, &mut idx, depth) {
+            Ok(val) => assert_eq!(expected, val),
+            Err(err) => assert!(false, "Output errored out -> {}", err),
+        }
     }
 
     #[test]
     fn unit_test_table_error() {
-        let input: Vec<Token> = vec![
-            Token::new(
-                TokenType::From,
-                &"".to_string(),
-                &"from".to_string(),
-            ),
-        ];
+        let input: Vec<Token> = vec![Token::new(
+            TokenType::From,
+            &"".to_string(),
+            &"from".to_string(),
+        )];
 
         let mut idx: usize = 0;
         let depth: u16 = 0;
-        
-        match TableNode::parse(
-            &input,
-            &mut idx,
-            depth) {
-                Ok(val) => assert!(false, "Output was expected to error but returned -> {}", val),
-                Err(err) => assert!(true, "Output errored out -> {}", err)
+
+        match TableNode::parse(&input, &mut idx, depth) {
+            Ok(val) => assert!(
+                false,
+                "Output was expected to error but returned -> {}",
+                val
+            ),
+            Err(err) => assert!(true, "Output errored out -> {}", err),
         }
     }
 
     #[test]
     fn unit_test_table_normal() {
         let input: Vec<Token> = vec![
-            Token::new(
-                TokenType::From,
-                &"".to_string(),
-                &"from".to_string(),
-            ),
+            Token::new(TokenType::From, &"".to_string(), &"from".to_string()),
             Token::new(
                 TokenType::Identifier,
                 &"table_name".to_string(),
@@ -704,19 +596,16 @@ mod tests {
 
         let expected: TableNode = TableNode {
             table_name: "table_name".to_string(),
-            
+
             _literal: "from table_name".to_string(),
-            _depth: 0
+            _depth: 0,
         };
         let mut idx: usize = 0;
         let depth: u16 = 0;
-        
-        match TableNode::parse(
-            &input,
-            &mut idx,
-            depth) {
-                Ok(val) => assert_eq!(expected, val),
-                Err(err) => assert!(false, "Output errored out -> {}", err)
-            }
+
+        match TableNode::parse(&input, &mut idx, depth) {
+            Ok(val) => assert_eq!(expected, val),
+            Err(err) => assert!(false, "Output errored out -> {}", err),
+        }
     }
 }

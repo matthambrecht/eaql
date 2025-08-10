@@ -2,25 +2,21 @@ use crate::{
     language::{
         lexer::{self, Lexer},
         parser::parser::{self, Query},
-        tokens::{self}
+        tokens::{self},
     },
-    utils::logger
+    utils::logger,
 };
 
-
 // Process query to low level components (parsed)
-pub fn process_query(
-    query: &String
-) -> Option<Query> {
-     // Tokenize input
-    let tokenized: Result<Lexer, String> = lexer::scan_tokens(
-        &query);
+pub fn process_query(query: &String) -> Option<Query> {
+    // Tokenize input
+    let tokenized: Result<Lexer, String> = lexer::scan_tokens(&query);
 
     let tokens = match tokenized {
         Ok(tokenized) => {
             logger::debug(&format!("Tokenized String -> \n{tokenized}"));
             tokenized.tokens
-        },
+        }
         Err(e) => {
             logger::warning(&e);
             return None;
@@ -34,14 +30,13 @@ pub fn process_query(
     }
 
     // Parse into an Abstract Syntax Tree
-    let parsed: Result<parser::Query, String> = parser::parse(
-        &tokens);
+    let parsed: Result<parser::Query, String> = parser::parse(&tokens);
 
     let ast = match parsed {
         Ok(parsed) => {
             logger::debug(&format!("Abstract Syntax Tree -> \n{parsed}"));
             parsed
-        },
+        }
         Err(e) => {
             logger::warning(&e);
             return None;

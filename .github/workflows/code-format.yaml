@@ -1,4 +1,4 @@
-name: Integration
+name: Linting
 
 permissions:
   contents: read
@@ -19,8 +19,11 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
     
+    - name: Setup Formatter
+      run: rustup component add rustfmt
+
     - name: Run Composite Build Action
       uses: ./.github/actions/build 
-    
-    - name: Run Integration Tests
-      run: cargo test --test '*' 
+
+    - name: Run Format Test
+      run: cargo fmt --all -- --check
