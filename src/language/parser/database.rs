@@ -486,7 +486,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_show_normal() {
+    fn unit_test_show_normal() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::EoqToken,
@@ -511,7 +511,7 @@ mod tests {
     }
   
     #[test]
-    fn test_use_normal() {
+    fn unit_test_use_normal() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Identifier,
@@ -543,7 +543,7 @@ mod tests {
     }
  
     #[test]
-    fn test_use_error() {
+    fn unit_test_use_error() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Get,
@@ -570,7 +570,7 @@ mod tests {
     }
     
     #[test]
-    fn test_create_normal() {
+    fn unit_test_create_normal() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Identifier,
@@ -602,7 +602,7 @@ mod tests {
     }
  
     #[test]
-    fn test_create_error() {
+    fn unit_test_create_error() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Get,
@@ -629,7 +629,7 @@ mod tests {
     }
 
     #[test]
-    fn test_destroy_normal_single() {
+    fn unit_test_destroy_normal_single() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Identifier,
@@ -661,7 +661,7 @@ mod tests {
     }
  
     #[test]
-    fn test_destroy_normal_multiple() {
+    fn unit_test_destroy_normal_multiple() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Identifier,
@@ -717,7 +717,7 @@ mod tests {
     }
 
     #[test]
-    fn test_destroy_error_multiple() {
+    fn unit_test_destroy_error_multiple() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Identifier,
@@ -753,7 +753,7 @@ mod tests {
             }
     }
     #[test]
-    fn test_destroy_error() {
+    fn unit_test_destroy_error() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Get,

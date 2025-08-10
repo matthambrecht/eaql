@@ -326,7 +326,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_basic_single_tokens() {
+    fn unit_test_basic_single_tokens() {
         let input: String = "()!.;,".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
 
@@ -369,7 +369,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_single_double_tokens() {
+    fn unit_test_basic_single_double_tokens() {
         let input: String = "<><=>==".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
         
@@ -407,7 +407,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_string_literal_base() {
+    fn unit_test_basic_string_literal_base() {
         let input: String = "\"Hi1234\"".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
 
@@ -425,7 +425,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_string_literal_error_1() {
+    fn unit_test_basic_string_literal_error_1() {
         let input: String = "\"Hi1234".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
 
@@ -443,7 +443,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_string_literal_error_2() {
+    fn unit_test_basic_string_literal_error_2() {
         let input: String = "\"".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
         
@@ -461,7 +461,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_string_literal_edge() {
+    fn unit_test_basic_string_literal_edge() {
         let input: String = "\"\"".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
 
@@ -479,7 +479,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_number_literal_base() {
+    fn unit_test_basic_number_literal_base() {
         let input: String = "1234".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
 
@@ -497,7 +497,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_number_literal_decimal() {
+    fn unit_test_basic_number_literal_decimal() {
         let input: String = "12.34".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
         
@@ -515,7 +515,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_number_literal_negative_decimal() {
+    fn unit_test_basic_number_literal_negative_decimal() {
         let input: String = "-12.34".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
 
@@ -533,7 +533,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_keyword_literal_1() {
+    fn unit_test_basic_keyword_literal_1() {
         let input: String = "get all from place.".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
         
@@ -571,7 +571,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_keyword_literal_2() {
+    fn unit_test_basic_keyword_literal_2() {
         let input: String = "retrieve everything from place whenever name is \"Coffee\" and cost >= 2.43!".to_string();
         let test_lexer: Result<Lexer, String> = Lexer::new(&input);
         

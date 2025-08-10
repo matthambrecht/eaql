@@ -611,7 +611,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_expression_parsing_normal() {
+    fn unit_test_expression_parsing_normal() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Identifier,
@@ -664,7 +664,7 @@ mod tests {
     }
 
     #[test]
-    fn test_expression_parsing_error() {
+    fn unit_test_expression_parsing_error() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::Identifier,

@@ -97,10 +97,17 @@ impl Query {
                     _database: Some(database_node),
                     _depth: depth 
                 });
+            } else {
+                return Err(
+                    format!(
+                        "Query recieved an action keyword, but received an invalid target keyword `{:?}`. Valid targets are: `Database`",
+                        tokens[*idx].token_type
+                    )
+                )
             }
         }
 
-        return Err("Query failed all requirements! Please review documentation.".to_string());
+        return Err("Couldn't determine requested action. Please review documentation for valid query actions.".to_string());
     }
 
     /// Outputs current AST node transpiled with color         
