@@ -479,3 +479,303 @@ impl fmt::Display for ShowNode {
         )
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_show_normal() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &"!".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+        let expected: ShowNode = ShowNode {
+            _depth: depth
+        };
+
+        match ShowNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert_eq!(val, expected),
+                Err(err) => assert!(false, "Output errored out -> {}", err)
+        }
+    }
+  
+    #[test]
+    fn test_use_normal() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Identifier,
+                &"test_db".to_string(),
+                &"test_db".to_string(),
+            ),
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &"!".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+        let expected: UseNode = UseNode {
+            name: "test_db".to_string(),
+            _literal: "test_db".to_string(),
+            _depth: depth
+        };
+
+        match UseNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert_eq!(val, expected),
+                Err(err) => assert!(true, "Output errored out -> {}", err)
+        }
+    }
+ 
+    #[test]
+    fn test_use_error() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &"!".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+
+        match UseNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert!(false, "Output was expected to error but returned -> {}", val),
+                Err(_) => assert!(true, "Output expected to error and did.")
+            }
+    }
+    
+    #[test]
+    fn test_create_normal() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Identifier,
+                &"test_db".to_string(),
+                &"test_db".to_string(),
+            ),
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &"!".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+        let expected: CreateNode = CreateNode {
+            name: "test_db".to_string(),
+            _literal: "test_db".to_string(),
+            _depth: depth
+        };
+
+        match CreateNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert_eq!(val, expected),
+                Err(err) => assert!(false, "Output errored out -> {}", err)
+        }
+    }
+ 
+    #[test]
+    fn test_create_error() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &"!".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+
+        match CreateNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert!(false, "Output was expected to error but returned -> {}", val),
+                Err(_) => assert!(true, "Output expected to error and did.")
+            }
+    }
+
+    #[test]
+    fn test_destroy_normal_single() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Identifier,
+                &"test_db".to_string(),
+                &"test_db".to_string(),
+            ),
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &"!".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+        let expected: DestroyNode = DestroyNode {
+            databases: vec!["test_db".to_string()],
+            _literal: "test_db".to_string(),
+            _depth: depth
+        };
+
+        match DestroyNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert_eq!(val, expected),
+                Err(err) => assert!(false, "Output errored out -> {}", err)
+        }
+    }
+ 
+    #[test]
+    fn test_destroy_normal_multiple() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Identifier,
+                &"test_db_1".to_string(),
+                &"test_db_1".to_string(),
+            ),
+            Token::new(
+                TokenType::Comma,
+                &",".to_string(),
+                &",".to_string(),
+            ),
+            Token::new(
+                TokenType::Identifier,
+                &"test_db_2".to_string(),
+                &"test_db_2".to_string(),
+            ),
+            Token::new(
+                TokenType::Comma,
+                &",".to_string(),
+                &",".to_string(),
+            ),
+            Token::new(
+                TokenType::Identifier,
+                &"test_db_3".to_string(),
+                &"test_db_3".to_string(),
+            ),
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &"!".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+        let expected: DestroyNode = DestroyNode {
+            databases: vec![
+                "test_db_1".to_string(),
+                "test_db_2".to_string(),
+                "test_db_3".to_string(),
+                ],
+            _literal: "test_db_1 , test_db_2 , test_db_3".to_string(),
+            _depth: depth
+        };
+
+        match DestroyNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert_eq!(val, expected),
+                Err(err) => assert!(false, "Output errored out -> {}", err)
+        }
+    }
+
+    #[test]
+    fn test_destroy_error_multiple() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Identifier,
+                &"test_db_1".to_string(),
+                &"test_db_1".to_string(),
+            ),
+            Token::new(
+                TokenType::Comma,
+                &",".to_string(),
+                &",".to_string(),
+            ),
+            Token::new(
+                TokenType::Comma,
+                &",".to_string(),
+                &",".to_string(),
+            ),
+            Token::new(
+                TokenType::Identifier,
+                &"test_db_2".to_string(),
+                &"test_db_2".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+
+        match DestroyNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert!(false, "Output was expected to error but returned -> {}", val),
+                Err(_) => assert!(true, "Output expected to error and did.")
+            }
+    }
+    #[test]
+    fn test_destroy_error() {
+        let input: Vec<Token> = vec![
+            Token::new(
+                TokenType::Get,
+                &"get".to_string(),
+                &"get".to_string(),
+            ),
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &"!".to_string(),
+            ),
+        ];
+
+        let mut idx: usize = 0;
+        let depth: u16 = 0;
+
+        match DestroyNode::parse(
+            &input,
+            &mut idx,
+            depth) {
+                Ok(val) => assert!(false, "Output was expected to error but returned -> {}", val),
+                Err(_) => assert!(true, "Output expected to error and did.")
+            }
+    }
+}
