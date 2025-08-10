@@ -73,6 +73,7 @@ fn handle_open_paren(
     depth: u16,
     finished: &mut bool,
     closing_paren: &mut bool,
+    opened_paren: &mut u16,
     closing_or: &mut bool,
 ) -> Result<ConditionChild, String> {
     let mut ret: ConditionChild = ConditionChild::Op(Box::new(OperandNode {
@@ -84,7 +85,8 @@ fn handle_open_paren(
                         depth + 1, 
                         "OR".to_string(), 
                         finished, 
-                        closing_paren, 
+                        closing_paren,
+                        opened_paren, 
                         closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
@@ -95,7 +97,8 @@ fn handle_open_paren(
                         depth + 1, 
                         "OR".to_string(), 
                         finished, 
-                        closing_paren, 
+                        closing_paren,
+                        opened_paren, 
                         closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
@@ -124,6 +127,7 @@ fn handle_open_paren(
                         "AND".to_string(), 
                         finished, 
                         closing_paren, 
+                        opened_paren,
                         closing_or) {
                             Ok(node) => node,
                             Err(msg) => return Err(msg)
@@ -153,7 +157,8 @@ fn handle_open_paren(
                         depth + 1, 
                         "OR".to_string(), 
                         finished, 
-                        closing_paren, 
+                        closing_paren,
+                        opened_paren,
                         closing_or) {
                             Ok(node) => node,
                             Err(msg) => return Err(msg)
@@ -164,6 +169,11 @@ fn handle_open_paren(
             )));
         },
         TokenType::CloseParen => {
+            if *opened_paren == 0 {
+                return Err("Closing parentheses found with unmatched opening in conditional!".to_string());
+            }
+
+            *opened_paren -= 1;
             *idx += 1;
             
             return Ok(ret);
@@ -192,6 +202,7 @@ fn handle_and(
     depth: u16,
     finished: &mut bool,
     closing_paren: &mut bool,
+    opened_paren: &mut u16,
     closing_or: &mut bool,
 ) -> Result<ConditionChild, String> {
     Ok(ConditionChild::Op(Box::new(OperandNode {
@@ -204,6 +215,7 @@ fn handle_and(
                         "AND".to_string(), 
                         finished, 
                         closing_paren, 
+                        opened_paren,
                         closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
@@ -215,6 +227,7 @@ fn handle_and(
                         "AND".to_string(), 
                         finished, 
                         closing_paren, 
+                        opened_paren,
                         closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
@@ -228,6 +241,7 @@ fn handle_literal(
     depth: u16,
     finished: &mut bool,
     closing_paren: &mut bool,
+    opened_paren: &mut u16,
     closing_or: &mut bool,
 ) -> Result<ConditionChild, String> {
     let ls: ConditionChild = ConditionChild::Expr(
@@ -243,6 +257,7 @@ fn handle_literal(
                         "AND".to_string(), 
                         finished, 
                         closing_paren, 
+                        opened_paren,
                         closing_or) {
         Ok(node) => node,
         Err(msg) => return Err(msg)
@@ -299,12 +314,13 @@ fn parse_child(
     parent_node: String,
     finished: &mut bool,
     closing_paren: &mut bool,
+    opened_paren: &mut u16,
     closing_or: &mut bool,
 ) -> Result<ConditionChild, String> {
     match tokens[*idx].token_type {
         TokenType::And => {
             *idx += 1;
-            return handle_and(tokens, idx, depth, finished, closing_paren, closing_or);
+            return handle_and(tokens, idx, depth, finished, closing_paren, opened_paren, closing_or);
         },
         TokenType::Or => {
             *idx += 1;
@@ -312,10 +328,17 @@ fn parse_child(
         },
         TokenType::OpenParen => {
             *idx += 1;
-            return handle_open_paren(tokens, idx, depth, finished, closing_paren, closing_or);
+            *opened_paren += 1;
+            return handle_open_paren(tokens, idx, depth, finished, closing_paren, opened_paren, closing_or);
         },
         TokenType::CloseParen => {
             *idx += 1;
+
+            if *opened_paren == 0 {
+                return Err("Closing parentheses found with unmatched opening in conditional!".to_string());
+            }
+
+            *opened_paren -= 1;
             return Ok(handle_close_paren(closing_paren, &parent_node, depth))
         },
         TokenType::PostProcessorEntrance => {
@@ -337,7 +360,7 @@ fn parse_child(
             return Ok(handle_close(&parent_node, depth))
         },
         TokenType::Identifier => {
-            return handle_literal(tokens, idx, depth, finished, closing_paren, closing_or);
+            return handle_literal(tokens, idx, depth, finished, closing_paren, opened_paren, closing_or);
         },
         _ => {
             return Err(format!(
@@ -355,6 +378,7 @@ fn recurse_down(
     parent_node: String,
     finished: &mut bool,
     closing_paren: &mut bool,
+    opened_paren: &mut u16,
     closing_or: &mut bool,
 ) -> Result<ConditionChild, String> {
     // We aren't finished yet so we might need to parse
@@ -367,6 +391,7 @@ fn recurse_down(
     // unless our parent node is an OR, then we need to add
     // and OR node and begin parsing from there
     if *closing_paren {
+        *closing_paren = false;
         return Ok(handle_close(&parent_node, depth));
     } else if *closing_or {
         if parent_node == "OR" {
@@ -382,7 +407,8 @@ fn recurse_down(
                         depth + 1, 
                         "OR".to_string(), 
                         finished, 
-                        closing_paren, 
+                        closing_paren,
+                        opened_paren, 
                         closing_or) {
                             Ok(node) => node,
                             Err(msg) => return Err(msg)
@@ -393,7 +419,8 @@ fn recurse_down(
                         depth + 1, 
                         "OR".to_string(), 
                         finished, 
-                        closing_paren, 
+                        closing_paren,
+                        opened_paren,
                         closing_or) {
                             Ok(node) => node,
                             Err(msg) => return Err(msg)
@@ -405,7 +432,7 @@ fn recurse_down(
         return Ok(handle_close(&parent_node, depth));
     }
 
-    return parse_child(tokens, idx, depth, parent_node, finished, closing_paren, closing_or)
+    return parse_child(tokens, idx, depth, parent_node, finished, closing_paren, opened_paren, closing_or);
 }
 
 impl ConditionNode {
@@ -419,6 +446,7 @@ impl ConditionNode {
     ) -> Result<ConditionNode, String> {
         let mut finished: bool = false;
         let mut closing_paren: bool = false;
+        let mut opened_paren: u16 = 0;
         let mut closing_or: bool = false;
         let start_idx: usize = *idx;
 
@@ -432,6 +460,7 @@ impl ConditionNode {
                         "OR".to_string(), 
                         &mut finished, 
                         &mut closing_paren,
+                        &mut opened_paren,
                         &mut closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
@@ -443,12 +472,17 @@ impl ConditionNode {
                         "OR".to_string(), 
                         &mut finished, 
                         &mut closing_paren,
+                        &mut opened_paren,
                         &mut closing_or) {
                 Ok(node) => node,
                 Err(msg) => return Err(msg)
             }
         }));
         
+        if opened_paren != 0 {
+            return Err("Conditional had unclosed parentheses".to_string());
+        }
+
         return Ok(
             ConditionNode {
                 _condition: ret,
@@ -583,8 +617,6 @@ impl fmt::Display for BoolNode {
         )
     }
 }
-
-
 
 impl fmt::Display for ExpressionNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
