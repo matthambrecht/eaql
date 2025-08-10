@@ -254,7 +254,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_postprocessor_error() {
+    fn unit_test_postprocessor_error() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::PostProcessorEntrance,
@@ -276,7 +276,7 @@ mod tests {
     }
 
     #[test]
-    fn test_postprocessor_limit_error_float() {
+    fn unit_test_postprocessor_limit_error_float() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::PostProcessorEntrance,
@@ -313,7 +313,7 @@ mod tests {
     }
 
     #[test]
-    fn test_postprocessor_limit_normal() {
+    fn unit_test_postprocessor_limit_normal() {
         let input: Vec<Token> = vec![
             Token::new(
                 TokenType::PostProcessorEntrance,
