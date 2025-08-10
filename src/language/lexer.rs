@@ -37,6 +37,16 @@ impl Lexer {
     ) {
         loop {
             if *current >= query.len() {
+                // Fix edge case where query ends with decimal
+                // (i.e. 2. becomes a number literal but should be a number and eoq token) 
+                if *current > 0 {
+                    let prev = query.as_bytes()[*current - 1];
+                    
+                    if matches!(prev, b'.' | b'!' | b';') {
+                        *current -= 1;
+                    }
+                }
+
                 return;
             }
 
@@ -490,6 +500,29 @@ mod tests {
                 TokenType::NumberLiteral,
                 &"1234".to_string(),
                 &"1234".to_string(),
+            ),
+        ];
+
+        assert_eq!(expected, test_lexer.unwrap().tokens);
+    }
+
+    #[test]
+    fn unit_test_edge_number_literal_decimal() {
+        let input: String = "12.".to_string();
+        let test_lexer: Result<Lexer, String> = Lexer::new(&input);
+        
+        assert!(!test_lexer.is_err());
+        
+        let expected: Vec<Token> = vec![
+            Token::new(
+                TokenType::NumberLiteral,
+                &"12".to_string(),
+                &"12".to_string(),
+            ),
+            Token::new(
+                TokenType::EoqToken,
+                &"".to_string(),
+                &".".to_string(),
             ),
         ];
 
