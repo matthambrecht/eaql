@@ -98,7 +98,7 @@ fn integration_test_table_accessor_normal_filter() {
     // Test different conditionals
     assert_eq!(engine("get all from test_table where id = 3 and price = 2.0."), true);
     assert_eq!(engine("get all from test_table where id = 3 or (price <= 2 and name is \"3\")!"), true);
-    assert_eq!(engine("get all from test_table where (price < 3 or name is \"test\" and (id = 3 or (value < 4 and time >= 5));"), true);
+    assert_eq!(engine("get all from test_table where (price < 3 or name is \"test\" and (id = 3 or (value < 4 and time >= 5)));"), true);
 }
 
 
@@ -143,9 +143,7 @@ fn integration_test_table_accessor_error_filter() {
     
     // Test different bad conditionals
     assert_eq!(engine("get all from test_table where id = 3 or (price <= 2 and name is id)!"), false);
-
-    // Bug that needs to be fixed
-    assert_eq!(engine("get all from test_table where (price < 3 or name is \"test\" and (id = 3 or (value < 4 and time >= 5)));"), false);
+    assert_eq!(engine("get all from test_table where (price < 3 or name is \"test\" and (id = 3 or (value < 4 and time >= 5)))));"), false);
 }
 
 #[test]
